@@ -8,66 +8,71 @@
 </head>
 <body>
 
-    <!-- TELA DO MENU E CONSTRUTOR DE DECK -->
-    <div id="deck-menu" class="screen">
-        <div class="menu-header">
-            <h1>CLASH VANILLA</h1>
-            <p>Selecione 8 cartas (Máximo 1 Campeão) para iniciar a batalha</p>
-        </div>
-
-        <div class="deck-status">
-            <div id="deck-slots-container"></div>
-            <div class="controls">
-                <div class="difficulty-select">
-                    <label for="ai-difficulty">Dificuldade IA:</label>
-                    <select id="ai-difficulty">
-                        <option value="easy">Fácil</option>
-                        <option value="medium" selected>Médio</option>
-                        <option value="hard">Difícil</option>
-                    </select>
-                </div>
-                <button id="start-battle-btn" disabled>¡BATALHA!</button>
+    <!-- CONTAINER PRINCIPAL DO APP -->
+    <div class="app-container">
+        
+        <!-- SEÇÃO DO MENU E CONSTRUTOR DE DECK -->
+        <div id="deck-menu" class="menu-section">
+            <div class="menu-header">
+                <h1>CLASH VANILLA</h1>
+                <p>Monte seu Deck (Selecione 8 cartas - Máx 1 Campeão)</p>
             </div>
-        </div>
 
-        <div class="pool-section">
-            <h2>Coleção de Cartas</h2>
-            <div id="cards-pool" class="cards-grid"></div>
-        </div>
-    </div>
-
-    <!-- TELA DA ARENA DE JOGO -->
-    <div id="game-screen" class="screen hidden">
-        <div id="ui-top">
-            <div id="timer-display">03:00</div>
-            <div id="match-status-text"></div>
-        </div>
-
-        <div id="canvas-container">
-            <canvas id="battle-canvas"></canvas>
-        </div>
-
-        <div id="ui-bottom">
-            <div id="elixir-section">
-                <div id="elixir-counter">5</div>
-                <div class="elixir-bar-container">
-                    <div id="elixir-bar-fill"></div>
+            <div class="deck-status">
+                <div id="deck-slots-container"></div>
+                <div class="controls">
+                    <div class="difficulty-select">
+                        <label for="ai-difficulty">Dificuldade IA:</label>
+                        <select id="ai-difficulty">
+                            <option value="easy">Fácil</option>
+                            <option value="medium" selected>Médio</option>
+                            <option value="hard">Difícil</option>
+                        </select>
+                    </div>
+                    <button id="start-battle-btn" disabled>Batalhar</button>
                 </div>
             </div>
 
-            <div id="hand-section">
-                <div id="next-card-preview">
-                    <span class="label">SEGUINTE</span>
-                    <div id="next-card-slot"></div>
+            <div class="pool-section">
+                <h2>Coleção Disponível</h2>
+                <div id="cards-pool" class="cards-grid"></div>
+            </div>
+        </div>
+
+        <!-- SEÇÃO DA ARENA DE JOGO (SÓ ABRE COM DECK PRONTO) -->
+        <div id="game-screen" class="game-section hidden">
+            <div id="ui-top">
+                <div id="timer-display">03:00</div>
+                <div id="match-status-text"></div>
+            </div>
+
+            <div id="canvas-container">
+                <canvas id="battle-canvas"></canvas>
+            </div>
+
+            <div id="ui-bottom">
+                <div id="elixir-section">
+                    <div id="elixir-counter">5</div>
+                    <div class="elixir-bar-container">
+                        <div id="elixir-bar-fill"></div>
+                    </div>
                 </div>
-                <div id="player-hand">
-                    <div class="hand-slot" data-index="0"></div>
-                    <div class="hand-slot" data-index="1"></div>
-                    <div class="hand-slot" data-index="2"></div>
-                    <div class="hand-slot" data-index="3"></div>
+
+                <div id="hand-section">
+                    <div id="next-card-preview">
+                        <span class="label">SEGUINTE</span>
+                        <div id="next-card-slot"></div>
+                    </div>
+                    <div id="player-hand">
+                        <div class="hand-slot" data-index="0"></div>
+                        <div class="hand-slot" data-index="1"></div>
+                        <div class="hand-slot" data-index="2"></div>
+                        <div class="hand-slot" data-index="3"></div>
+                    </div>
                 </div>
             </div>
         </div>
+        
     </div>
 
     <script src="script.js"></script>
