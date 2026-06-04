@@ -1,0 +1,375 @@
+:root {
+    --bg-dark: #121826;
+    --card-bg: #1f293d;
+    --accent-blue: #2563eb;
+    --accent-red: #dc2626;
+    --elixir-color: #d946ef;
+    --text-light: #f3f4f6;
+    --gold: #f59e0b;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    user-select: none;
+    -webkit-user-select: none;
+    font-family: 'Arial Black', Impact, sans-serif;
+}
+
+body {
+    background-color: var(--bg-dark);
+    color: var(--text-light);
+    overflow: hidden;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.screen {
+    width: 100%;
+    height: 100%;
+    max-width: 480px;
+    max-height: 850px;
+    background: radial-gradient(circle, #2a364f 0%, #151b26 100%);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 0 30px rgba(0,0,0,0.8);
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* MENÚ DE SELECCIÓN DE MAZO */
+#deck-menu {
+    padding: 15px;
+    overflow-y: auto;
+}
+
+.menu-header {
+    text-align: center;
+    margin-bottom: 15px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.6);
+}
+
+.menu-header h1 {
+    color: var(--gold);
+    font-size: 2rem;
+    letter-spacing: 2px;
+}
+
+.menu-header p {
+    font-size: 0.8rem;
+    color: #9ca3af;
+}
+
+.deck-status {
+    background: rgba(0, 0, 0, 0.4);
+    padding: 12px;
+    border-radius: 12px;
+    margin-bottom: 15px;
+    border: 2px solid #374151;
+}
+
+#deck-slots-container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.deck-slot {
+    aspect-ratio: 3/4;
+    border: 2px dashed #4b5563;
+    border-radius: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    background: rgba(255,255,255,0.05);
+}
+
+.controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+}
+
+.difficulty-select {
+    display: flex;
+    flex-direction: column;
+    font-size: 0.8rem;
+}
+
+.difficulty-select select {
+    background: var(--card-bg);
+    color: white;
+    border: 2px solid #4b5563;
+    padding: 6px;
+    border-radius: 6px;
+    font-weight: bold;
+}
+
+#start-battle-btn {
+    background: linear-gradient(to bottom, #10b981, #047857);
+    color: white;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    box-shadow: 0 4px 0 #065f46;
+    transition: transform 0.1s;
+}
+
+#start-battle-btn:active:not(:disabled) {
+    transform: translateY(4px);
+    box-shadow: none;
+}
+
+#start-battle-btn:disabled {
+    background: #4b5563;
+    box-shadow: none;
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.pool-section h2 {
+    font-size: 1.1rem;
+    margin-bottom: 8px;
+    color: var(--gold);
+}
+
+.cards-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    padding-bottom: 20px;
+}
+
+/* COMPONENTE CARTA VISUAL */
+.card-item {
+    background: linear-gradient(135deg, #2e3b57 0%, #1c2436 100%);
+    border: 2px solid #4b5563;
+    border-radius: 8px;
+    position: relative;
+    padding: 6px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    transition: transform 0.15s, border-color 0.15s;
+}
+
+.card-item:hover {
+    transform: scale(1.03);
+}
+
+.card-item.selected-in-deck {
+    border-color: var(--gold);
+    box-shadow: 0 0 10px var(--gold);
+}
+
+.card-item.champion {
+    border-color: #a855f7;
+}
+
+.card-elixir {
+    position: absolute;
+    top: -5px;
+    left: -5px;
+    background: var(--elixir-color);
+    color: white;
+    border-radius: 50%;
+    width: 22px;
+    height: 22px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 0.75rem;
+    border: 1.5px solid white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.4);
+    z-index: 2;
+}
+
+.card-name {
+    font-size: 0.7rem;
+    text-align: center;
+    margin-top: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+}
+
+.card-type {
+    font-size: 0.55rem;
+    color: #9ca3af;
+    text-transform: uppercase;
+}
+
+/* INTERFAZ DE ARENA DE JUEGO */
+#game-screen {
+    justify-content: space-between;
+}
+
+#ui-top {
+    height: 40px;
+    background: rgba(0,0,0,0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    z-index: 10;
+    border-bottom: 2px solid #2d3748;
+}
+
+#timer-display {
+    font-size: 1.3rem;
+    letter-spacing: 1px;
+}
+
+#match-status-text {
+    position: absolute;
+    top: 50px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 1.8rem;
+    color: var(--gold);
+    text-shadow: 3px 3px 0px #000;
+    z-index: 20;
+    pointer-events: none;
+    text-align: center;
+    width: 100%;
+}
+
+#canvas-container {
+    flex: 1;
+    position: relative;
+    background-color: #3f6a3d;
+}
+
+canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+#ui-bottom {
+    background: linear-gradient(to bottom, #1e2530, #11161d);
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    border-top: 3px solid #2d3748;
+    z-index: 10;
+}
+
+/* BARRA DE ELIXIR */
+#elixir-section {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+#elixir-counter {
+    background: var(--elixir-color);
+    color: white;
+    border-radius: 6px;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.2rem;
+    border: 2px solid white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.4);
+}
+
+.elixir-bar-container {
+    flex: 1;
+    height: 16px;
+    background: #374151;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 2px solid #4b5563;
+    position: relative;
+}
+
+#elixir-bar-fill {
+    height: 100%;
+    width: 50%;
+    background: linear-gradient(to right, #ec4899, var(--elixir-color));
+    box-shadow: inset 0 2px 4px rgba(255,255,255,0.4);
+    transition: width 0.1s linear;
+}
+
+/* ENTORNO DE MANO */
+#hand-section {
+    display: flex;
+    gap: 12px;
+    height: 95px;
+    align-items: center;
+}
+
+#next-card-preview {
+    width: 65px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+#next-card-preview .label {
+    font-size: 0.5rem;
+    color: #9ca3af;
+}
+
+#next-card-slot {
+    width: 100%;
+    aspect-ratio: 3/4;
+    border-radius: 6px;
+    transform: scale(0.85);
+    opacity: 0.7;
+}
+
+#player-hand {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+    height: 100%;
+}
+
+.hand-slot {
+    width: 100%;
+    height: 100%;
+    border: 2px dashed #4b5563;
+    border-radius: 8px;
+    background: rgba(0,0,0,0.2);
+    position: relative;
+    transition: transform 0.15s;
+}
+
+.hand-slot .card-item {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.hand-slot.selected {
+    transform: translateY(-10px);
+}
+
+.hand-slot.selected .card-item {
+    border-color: #3b82f6;
+    box-shadow: 0 0 12px #3b82f6;
+}

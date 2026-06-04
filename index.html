@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Clash Royale Vanilla Remake</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="deck-menu" class="screen">
+        <div class="menu-header">
+            <h1>CLASH VANILLA</h1>
+            <p>Selecciona 8 cartas (Máximo 1 Campeón) para iniciar la batalla</p>
+        </div>
+
+        <div class="deck-status">
+            <div id="deck-slots-container">
+                </div>
+            <div class="controls">
+                <div class="difficulty-select">
+                    <label for="ai-difficulty">Dificultad IA:</label>
+                    <select id="ai-difficulty">
+                        <option value="easy">Fácil</option>
+                        <option value="medium" selected>Medio</option>
+                        <option value="hard">Difícil</option>
+                    </select>
+                </div>
+                <button id="start-battle-btn" disabled>¡BATALLA!</button>
+            </div>
+        </div>
+
+        <div class="pool-section">
+            <h2>Colección de Cartas</h2>
+            <div id="cards-pool" class="cards-grid">
+                </div>
+        </div>
+    </div>
+
+    <div id="game-screen" class="screen hidden">
+        <div id="ui-top">
+            <div id="timer-display">03:00</div>
+            <div id="match-status-text"></div>
+        </div>
+
+        <div id="canvas-container">
+            <canvas id="battle-canvas"></canvas>
+        </div>
+
+        <div id="ui-bottom">
+            <div id="elixir-section">
+                <div id="elixir-counter">5</div>
+                <div class="elixir-bar-container">
+                    <div id="elixir-bar-fill"></div>
+                </div>
+            </div>
+
+            <div id="hand-section">
+                <div id="next-card-preview">
+                    <span class="label">SIGUIENTE</span>
+                    <div id="next-card-slot"></div>
+                </div>
+                <div id="player-hand">
+                    <div class="hand-slot" data-index="0"></div>
+                    <div class="hand-slot" data-index="1"></div>
+                    <div class="hand-slot" data-index="2"></div>
+                    <div class="hand-slot" data-index="3"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
