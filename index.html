@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Clash Royale Sandbox - Edição Expandida</title>
+    <title>Clash Royale Sandbox - Edição Completa</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: sans-serif; background: #222; color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
@@ -22,8 +22,8 @@
         .tropa.aliada { background: #3498db; border: 1px solid #fff; }
         .tropa.inimiga { background: #e74c3c; border: 1px solid #fff; }
         
-        /* Modificadores de tipo de tropa */
-        .tropa.voadora { border-radius: 30% !important; border: 2px solid #f1c40f !important; } /* Quadrado arredondado para voadoras */
+        /* Modificadores Visuais */
+        .tropa.voadora { border-radius: 30% !important; border: 2px solid #f1c40f !important; } 
         .tropa.estrutura { border-radius: 0% !important; width: 30px; height: 30px; border: 2px solid #9b59b6 !important; }
 
         /* Projéteis e Feitiços */
@@ -32,7 +32,7 @@
 
         @keyframes fecharFeitico {
             0% { width: 0px; height: 0px; opacity: 0.8; }
-            100% { width: 120px; height: 120px; opacity: 0; }
+            100% { width: 130px; height: 130px; opacity: 0; }
         }
 
         /* Interface e Elixir */
@@ -41,13 +41,13 @@
         #barra-elixir { width: 30%; height: 100%; background: #9b59b6; transition: width 0.1s linear; }
         #status { display: flex; justify-content: space-between; font-weight: bold; font-size: 14px; }
 
-        /* Deck de Cartas Rolável */
-        #carrossel-deck { width: 100%; overflow-x: auto; padding-bottom: 5px; }
-        #deck { display: flex; gap: 8px; width: max-content; }
-        .carta { width: 78px; height: 95px; background: #34495e; border: 2px solid #7f8c8d; border-radius: 6px; display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 5px; cursor: pointer; user-select: none; flex-shrink: 0; }
+        /* Deck com Scroll Horizontal para caber TUDO */
+        #carrossel-deck { width: 100%; overflow-x: auto; padding-bottom: 8px; scrollbar-width: thin; }
+        #deck { display: flex; gap: 8px; width: max-content; padding: 4px; }
+        .carta { width: 85px; height: 100px; background: #34495e; border: 2px solid #7f8c8d; border-radius: 6px; display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 5px; cursor: pointer; user-select: none; flex-shrink: 0; }
         .carta:hover { border-color: #f1c40f; background: #2c3e50; }
         .carta .custo { background: #9b59b6; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: bold; align-self: flex-start; }
-        .carta .nome { font-size: 9px; text-align: center; font-weight: bold; min-height: 22px; display: flex; align-items: center; }
+        .carta .nome { font-size: 9px; text-align: center; font-weight: bold; min-height: 22px; display: flex; align-items: center; justify-content: center; width: 100%; }
         .carta .tipo { font-size: 8px; color: #bdc3c7; font-style: italic; }
     </style>
 </head>
@@ -59,7 +59,7 @@
 
     <div id="ui">
         <div id="status">
-            <span>Elixir: <span id="texto-elixir">3</span>/10</span>
+            <span>Elixir: <span id="texto-elixir">5</span>/10</span>
             <span style="color: #e74c3c;">Inimigos Derrotados: <span id="placar">0</span></span>
         </div>
         <div id="barra-elixir-container">
@@ -83,28 +83,31 @@
         let torres = [];
         let idCounter = 0;
 
-        // Lista de todas as cartas solicitadas em Português
+        // DECK COMPLETO COM TODAS AS VARIAÇÕES SOLICITADAS
         const cartasDisponiveis = [
-            // Originais + Pesadas
-            { nome: "Mega Cavaleiro", custo: 7, vida: 3200, dano: 200, tipo: "tropa", voadora: false },
-            { nome: "P.E.K.K.A", custo: 7, vida: 3400, dano: 400, tipo: "tropa", voadora: false },
-            { nome: "Corredor", custo: 4, vida: 1400, dano: 150, tipo: "tropa", voadora: false, focaTorre: true },
-            
-            // Família dos Goblins
-            { nome: "Goblins", custo: 2, vida: 300, dano: 60, tipo: "tropa", quantidade: 3 },
-            { nome: "Gangue de Goblins", custo: 3, vida: 300, dano: 55, tipo: "tropa", quantidade: 5 },
-            { nome: "Goblin com Dardo", custo: 3, vida: 400, dano: 80, tipo: "tropa", voadora: false },
+            // Pesadas e Suportes Solicitados
+            { nome: "Mega Cavaleiro", custo: 7, vida: 3200, dano: 200, tipo: "tropa" },
+            { nome: "P.E.K.K.A", custo: 7, vida: 3400, dano: 400, tipo: "tropa" },
+            { nome: "Corredor", custo: 4, vida: 1400, dano: 160, tipo: "tropa", focaTorre: true },
+            { nome: "Servos", custo: 3, vida: 400, dano: 70, tipo: "tropa", voadora: true, quantidade: 3 },
+            { nome: "Fábrica de Elixir", custo: 5, vida: 1200, tipo: "estrutura" },
+            { nome: "Bola de Neve", custo: 2, tipo: "feitico", efeito: "lentidao" },
             { nome: "Maldição Goblin", custo: 2, tipo: "feitico", efeito: "maldicao" },
 
-            // Família dos Esqueletos
-            { nome: "Esqueletos", custo: 1, vida: 100, dano: 30, tipo: "tropa", quantidade: 3 },
-            { nome: "Exército de Esqueletos", custo: 3, vida: 100, dano: 30, tipo: "tropa", quantidade: 12 },
-            { nome: "Bombardeiro", custo: 2, vida: 500, dano: 110, tipo: "tropa" },
+            // TODAS AS VARIAÇÕES DE GOBLINS
+            { nome: "Goblins", custo: 2, vida: 300, dano: 65, tipo: "tropa", quantidade: 3 },
+            { nome: "Goblins Lanceiros", custo: 2, vida: 240, dano: 40, tipo: "tropa", quantidade: 3 },
+            { nome: "Gangue de Goblins", custo: 3, vida: 280, dano: 55, tipo: "tropa", quantidade: 5 },
+            { nome: "Goblin com Dardo", custo: 3, vida: 430, dano: 85, tipo: "tropa" },
+            { nome: "Goblin do Gadeia", custo: 4, vida: 950, dano: 110, tipo: "tropa" }, // Goblin gigante / Robusto
 
-            // Outras adições
-            { nome: "Bola de Neve", custo: 2, tipo: "feitico", efeito: "lentidao" },
-            { nome: "Servos", custo: 3, vida: 400, dano: 70, tipo: "tropa", voadora: true, quantidade: 3 },
-            { nome: "Fábrica de Elixir", custo: 5, vida: 1200, tipo: "estrutura" }
+            // TODAS AS VARIAÇÕES DE ESQUELETOS
+            { nome: "Esqueletos", custo: 1, vida: 110, dano: 35, tipo: "tropa", quantidade: 3 },
+            { nome: "Exército de Esqueletos", custo: 3, vida: 110, dano: 35, tipo: "tropa", quantidade: 14 },
+            { nome: "Bombardeiro", custo: 2, vida: 500, dano: 120, tipo: "tropa" },
+            { nome: "Arqueiras Supremas", custo: 3, vida: 500, dano: 60, tipo: "tropa", quantidade: 2 },
+            { nome: "Gigante Esqueleto", custo: 6, vida: 2800, dano: 170, tipo: "tropa" },
+            { nome: "Balão Esqueleto", custo: 3, vida: 700, dano: 100, tipo: "tropa", voadora: true, focaTorre: true }
         ];
 
         function inicializarTorres() {
@@ -133,7 +136,6 @@
             });
         }
 
-        // Sistema de Ataque das Torres (Atacam tanto tropas terrestres quanto voadoras)
         function logicaAtaqueTorres() {
             const agora = Date.now();
             torres.forEach(torre => {
@@ -141,7 +143,7 @@
                 
                 if (!torre.ultimoAtaque || agora - torre.ultimoAtaque > 900) {
                     let alvo = null;
-                    let menorDist = 140; // Alcance da torre
+                    let menorDist = 140;
 
                     tropas.forEach(tropa => {
                         if (tropa.time !== torre.time && tropa.tipo === "tropa") {
@@ -176,7 +178,6 @@
             }, 20);
         }
 
-        // Lógica de Soltura de Feitiços
         function lancarFeitico(carta, x, y) {
             const div = document.createElement('div');
             div.className = 'efeito-feitico';
@@ -184,20 +185,18 @@
             div.style.top = `${y}px`;
             
             if (carta.efeito === "lentidao") {
-                div.style.background = "rgba(135, 206, 250, 0.6)"; // Azul Bola de Neve
-                // Causa um pequeno dano e atrasa os inimigos na área
+                div.style.background = "rgba(135, 206, 250, 0.6)";
                 tropas.forEach(t => {
-                    if (t.time === "inimiga" && Math.hypot(t.x - x, t.y - y) < 70) {
-                        t.vida -= 100;
-                        t.velocidade = 0.6; // Desacelera
+                    if (t.time === "inimiga" && Math.hypot(t.x - x, t.y - y) < 75) {
+                        t.vida -= 150;
+                        t.velocidade = 0.5; // Deixa lento
                     }
                 });
             } else if (carta.efeito === "maldicao") {
-                div.style.background = "rgba(46, 204, 113, 0.6)"; // Verde Maldição Goblin
-                // Causa dano contínuo leve e os enfraquece
+                div.style.background = "rgba(46, 204, 113, 0.6)";
                 tropas.forEach(t => {
-                    if (t.time === "inimiga" && Math.hypot(t.x - x, t.y - y) < 70) {
-                        t.vida -= 180;
+                    if (t.time === "inimiga" && Math.hypot(t.x - x, t.y - y) < 75) {
+                        t.vida -= 220;
                     }
                 });
             }
@@ -213,20 +212,16 @@
                 x: x,
                 y: y,
                 vida: carta.vida,
-                maxVida: carta.vida,
                 dano: carta.dano || 0,
                 tipo: carta.tipo,
                 voadora: carta.voadora || false,
                 focaTorre: carta.focaTorre || false,
-                velocidade: carta.nome === "Corredor" ? 2.5 : 1.4,
+                velocidade: (carta.nome === "Corredor" || carta.nome === "Balão Esqueleto") ? 2.6 : 1.3,
                 time: time,
                 ultimoAtaque: 0
             };
 
-            // Ajuste visual se for estrutura
-            if(carta.tipo === "estrutura") {
-                novaTropa.ultimoAtaque = Date.now();
-            }
+            if(carta.tipo === "estrutura") novaTropa.ultimoAtaque = Date.now();
 
             tropas.push(novaTropa);
 
@@ -235,12 +230,13 @@
             div.id = `tropa-${novaTropa.id}`;
             div.innerText = carta.nome.substring(0, 2);
             
-            // Cores Customizadas por família
+            // Definição de Cores das Famílias
             if(carta.nome.includes("Goblin")) div.style.backgroundColor = "#2ecc71";
-            if(carta.nome.includes("Esqueleto") || carta.nome === "Bombardeiro") div.style.backgroundColor = "#bdc3c7";
-            if(carta.nome === "Servos") div.style.backgroundColor = "#9b59b6";
-            if(carta.nome === "Corredor") div.style.backgroundColor = "#d35400";
-            if(carta.nome === "Fábrica de Elixir") div.style.backgroundColor = "#e84393";
+            else if(carta.nome.includes("Esqueleto") || carta.nome === "Bombardeiro") div.style.backgroundColor = "#bdc3c7";
+            else if(carta.nome === "Servos") div.style.backgroundColor = "#9b59b6";
+            else if(carta.nome === "Corredor") div.style.backgroundColor = "#d35400";
+            else if(carta.nome === "Fábrica de Elixir") div.style.backgroundColor = "#e84393";
+            else if(carta.nome === "Mega Cavaleiro" || carta.nome === "P.E.K.K.A") div.style.backgroundColor = "#2c3e50";
 
             arena.appendChild(div);
         }
@@ -262,24 +258,20 @@
                     continue;
                 }
 
-                // Mecânica Especial: Fábrica de Elixir gera elixir com o tempo
                 if (t.tipo === "estrutura" && t.nome === "Fábrica de Elixir") {
-                    t.vida -= 2; // Perde vida gradualmente até sumir
-                    if (Date.now() - t.ultimoAtaque > 2500) { // Gera a cada 2.5s
-                        if (t.time === "aliada" && elixir < 10) {
-                            elixir = Math.min(10, elixir + 1);
-                        }
+                    t.vida -= 2;
+                    if (Date.now() - t.ultimoAtaque > 2500) {
+                        if (t.time === "aliada" && elixir < 10) elixir = Math.min(10, elixir + 1);
                         t.ultimoAtaque = Date.now();
                     }
-                    continue; // Estruturas não andam
+                    continue;
                 }
 
-                // Inteligência de Movimentação e Alvos
                 let alvoAlvo = null;
                 let menorDistancia = 9999;
 
+                // MECÂNICA DO CORREDOR / BALÃO: Foca 100% apenas nas Torres
                 if (t.focaTorre) {
-                    // Ignora tropas comuns e vai só nas torres vivas
                     torres.forEach(torre => {
                         if (torre.time !== t.time && torre.hp > 0) {
                             const dist = Math.hypot(torre.x - t.x, torre.y - t.y);
@@ -287,17 +279,15 @@
                         }
                     });
                 } else {
-                    // Ataca tropas inimigas primeiro
+                    // Outras tropas buscam oponentes no chão (e bloqueiam alvos voadores se forem terrestres)
                     tropas.forEach(oponente => {
                         if (oponente.time !== t.time) {
-                            // Tropas terrestres NÃO podem focar em tropas voadoras!
                             if (!t.voadora && oponente.voadora) return; 
 
                             const dist = Math.hypot(oponente.x - t.x, oponente.y - t.y);
                             if (dist < menorDistancia) { menorDistancia = dist; alvoAlvo = oponente; }
                         }
                     });
-                    // Se não tiver tropas, mira nas torres
                     if (!alvoAlvo) {
                         torres.forEach(torre => {
                             if (torre.time !== t.time && torre.hp > 0) {
@@ -308,19 +298,15 @@
                     }
                 }
 
-                // Executar Movimento ou Ataque
                 if (alvoAlvo) {
-                    if (menorDistancia > 25) {
-                        // Anda em direção ao alvo
+                    if (menorDistancia > 24) {
                         const angulo = Math.atan2(alvoAlvo.y - t.y, alvoAlvo.x - t.x);
                         t.x += Math.cos(angulo) * t.velocidade;
                         t.y += Math.sin(angulo) * t.velocidade;
                     } else {
-                        // Ataque corpo a corpo / Curta distância
                         if (Date.now() - t.ultimoAtaque > 800) {
                             alvoAlvo.hp ? alvoAlvo.hp -= t.dano : alvoAlvo.vida -= t.dano;
-                            
-                            if (alvoAlvo.hp && alvoAlvo.hp <= 0) renderizarTorres(); // Atualiza torres destruídas
+                            if (alvoAlvo.hp && alvoAlvo.hp <= 0) renderizarTorres();
                             
                             criarEfeitoProjetil(t.x, t.y, alvoAlvo.x, alvoAlvo.y, t.voadora ? "#9b59b6" : "#fff");
                             t.ultimoAtaque = Date.now();
@@ -334,14 +320,14 @@
                 }
             }
 
-            // Invocador Inimigo IA Inteligente
+            // Inimigos gerados aleatoriamente
             if (Math.random() < 0.02) {
                 const cartasFiltro = cartasDisponiveis.filter(c => c.tipo === "tropa");
                 const cartaAleatoria = cartasFiltro[Math.floor(Math.random() * cartasFiltro.length)];
                 
                 if (cartaAleatoria.quantidade) {
                     for(let k=0; k < cartaAleatoria.quantidade; k++) {
-                        invocarTropa(cartaAleatoria, (Math.random() * 240) + 80, 60 + (k*10), "inimiga");
+                        invocarTropa(cartaAleatoria, (Math.random() * 240) + 80, 60 + (k*8), "inimiga");
                     }
                 } else {
                     invocarTropa(cartaAleatoria, (Math.random() * 240) + 80, 60, "inimiga");
@@ -365,15 +351,12 @@
                         elixir -= carta.custo;
                         
                         if (carta.tipo === "feitico") {
-                            // Dispara feitiço direto no meio da arena inimiga de forma randômica
-                            lancarFeitico(carta, Math.random() * 200 + 100, Math.random() * 150 + 100);
+                            lancarFeitico(carta, Math.random() * 200 + 100, Math.random() * 140 + 120);
                         } else if (carta.quantidade) {
-                            // Cartas com múltiplas unidades (Exércitos/Gangues)
                             for(let i=0; i<carta.quantidade; i++) {
-                                invocarTropa(carta, Math.random() * 260 + 70, Math.random() * 80 + 340, "aliada");
+                                invocarTropa(carta, Math.random() * 260 + 70, Math.random() * 60 + 350, "aliada");
                             }
                         } else {
-                            // Tropas e Estruturas solo
                             invocarTropa(carta, Math.random() * 260 + 70, 360, "aliada");
                         }
                     }
@@ -382,14 +365,13 @@
             });
         }
 
-        // Barra de Elixir passiva
         setInterval(() => {
             if (elixir < 10) {
                 elixir = parseFloat((elixir + 0.1).toFixed(1));
                 textoElixir.innerText = Math.floor(elixir);
                 barraElixir.style.width = `${elixir * 10}%`;
             }
-        }, 120);
+        }, 125);
 
         inicializarTorres();
         carregarDeck();
