@@ -19,7 +19,6 @@ const AppState = {
     gameRunning: false
 };
 
-// Rastreador global da mecânica Drag and Drop do Canvas
 let dragTracker = {
     isDragging: false,
     card: null,
@@ -51,7 +50,7 @@ function initDeckBuilder() {
         cardEl.className = "card-item";
         cardEl.innerHTML = `
             <div class="card-elixir">${card.cost}</div>
-            <div style="font-size:1.1rem; margin-top:2px;">${getCardIcon(card.id)}</div>
+            <div style="font-size:1.4rem; margin-top:2px; filter: drop-shadow(0px 2px 3px rgba(0,0,0,0.5));">${getCardIcon(card.id)}</div>
             <div class="card-name">${card.name}</div>
         `;
         cardEl.addEventListener("click", () => toggleCardInDeck(card, cardEl));
@@ -61,8 +60,8 @@ function initDeckBuilder() {
 
 function getCardIcon(id) {
     const icons = {
-        caballero: '⚔️', arquera: '🏹', barbaro: '🪓', mini_pekka: '🤖', gigante: '🛡️',
-        mosquetera: '🔫', canon: '💥', bola_fuego: '🔥', flechas: '🏹'
+        caballero: '👑', arquera: '🏹', barbaro: '🪓', mini_pekka: '🤖', gigante: '🦁',
+        mosquetera: '💂', canon: '💥', bola_fuego: '☄️', flechas: '💨'
     };
     return icons[id] || '🃏';
 }
@@ -86,10 +85,10 @@ function updateDeckUI() {
         const card = AppState.selectedDeck[i];
         if (card) {
             slot.innerHTML = `
-                <div class="card-item" style="width:100%; height:100%; box-shadow:none; padding:2px;">
+                <div class="card-item" style="width:100%; height:100%; box-shadow:none; padding:2px; background: #1e293b;">
                     <div class="card-elixir" style="width:14px; height:14px; font-size:0.55rem; top:-2px; left:-2px;">${card.cost}</div>
-                    <div style="font-size:0.8rem;">${getCardIcon(card.id)}</div>
-                    <div class="card-name" style="font-size:0.5rem; margin:0;">${card.name}</div>
+                    <div style="font-size:1rem; filter: drop-shadow(0px 2px 2px rgba(0,0,0,0.6));">${getCardIcon(card.id)}</div>
+                    <div class="card-name" style="font-size:0.5rem; margin:0; color: #fff;">${card.name}</div>
                 </div>
             `;
         } else {
@@ -149,14 +148,14 @@ const BattleEngine = {
 
     spawnBases() {
         const w = this.width; const h = this.height;
-        // Aliadas
-        this.entities.push({ id: 'base_jogador', type: 'estructura', side: 'player', isBase: true, x: w / 2, y: h - 50, radius: 24, hp: 4000, maxHp: 4000, dmg: 100, range: 140, attackSpeed: 1000, lastAttack: 0 });
-        this.entities.push({ id: 'torre_p1', type: 'estructura', side: 'player', isBase: false, x: w * 0.25, y: h - 110, radius: 18, hp: 2500, maxHp: 2500, dmg: 80, range: 150, attackSpeed: 800, lastAttack: 0 });
-        this.entities.push({ id: 'torre_p2', type: 'estructura', side: 'player', isBase: false, x: w * 0.75, y: h - 110, radius: 18, hp: 2500, maxHp: 2500, dmg: 80, range: 150, attackSpeed: 800, lastAttack: 0 });
-        // Inimigas
-        this.entities.push({ id: 'base_inimiga', type: 'estructura', side: 'enemy', isBase: true, x: w / 2, y: 50, radius: 24, hp: 4000, maxHp: 4000, dmg: 100, range: 140, attackSpeed: 1000, lastAttack: 0 });
-        this.entities.push({ id: 'torre_e1', type: 'estructura', side: 'enemy', isBase: false, x: w * 0.25, y: 110, radius: 18, hp: 2500, maxHp: 2500, dmg: 80, range: 150, attackSpeed: 800, lastAttack: 0 });
-        this.entities.push({ id: 'torre_e2', type: 'estructura', side: 'enemy', isBase: false, x: w * 0.75, y: 110, radius: 18, hp: 2500, maxHp: 2500, dmg: 80, range: 150, attackSpeed: 800, lastAttack: 0 });
+        // Aliadas (Azul)
+        this.entities.push({ id: 'base_jogador', type: 'estructura', side: 'player', isBase: true, x: w / 2, y: h - 60, radius: 26, hp: 4000, maxHp: 4000, dmg: 100, range: 140, attackSpeed: 1000, lastAttack: 0 });
+        this.entities.push({ id: 'torre_p1', type: 'estructura', side: 'player', isBase: false, x: w * 0.22, y: h - 130, radius: 20, hp: 2500, maxHp: 2500, dmg: 80, range: 150, attackSpeed: 800, lastAttack: 0 });
+        this.entities.push({ id: 'torre_p2', type: 'estructura', side: 'player', isBase: false, x: w * 0.78, y: h - 130, radius: 20, hp: 2500, maxHp: 2500, dmg: 80, range: 150, attackSpeed: 800, lastAttack: 0 });
+        // Inimigas (Vermelho)
+        this.entities.push({ id: 'base_inimiga', type: 'estructura', side: 'enemy', isBase: true, x: w / 2, y: 60, radius: 26, hp: 4000, maxHp: 4000, dmg: 100, range: 140, attackSpeed: 1000, lastAttack: 0 });
+        this.entities.push({ id: 'torre_e1', type: 'estructura', side: 'enemy', isBase: false, x: w * 0.22, y: 130, radius: 20, hp: 2500, maxHp: 2500, dmg: 80, range: 150, attackSpeed: 800, lastAttack: 0 });
+        this.entities.push({ id: 'torre_e2', type: 'estructura', side: 'enemy', isBase: false, x: w * 0.78, y: 130, radius: 20, hp: 2500, maxHp: 2500, dmg: 80, range: 150, attackSpeed: 800, lastAttack: 0 });
     },
 
     setupDragAndDrop() {
@@ -222,15 +221,16 @@ const BattleEngine = {
     },
 
     deployCard(x, y, card, side) {
-        this.generateSparkParticles(x, y, side === 'player' ? '#3b82f6' : '#ef4444', 12);
+        this.generateSparkParticles(x, y, side === 'player' ? '#60a5fa' : '#f87171', 25);
 
         if (card.type === 'hechizo') {
-            this.particles.push({ type: 'spell', x: x, y: y, maxRadius: card.radius, currentRadius: 0, duration: 300, startTime: Date.now() });
+            let pColor = card.id === 'bola_fuego' ? 'rgba(239, 68, 68, 0.4)' : 'rgba(96, 165, 250, 0.4)';
+            this.particles.push({ type: 'spell', x: x, y: y, maxRadius: card.radius, currentRadius: 0, duration: 400, color: pColor, startTime: Date.now() });
             setTimeout(() => {
                 this.entities.filter(e => e.side !== side).forEach(enemy => {
                     if (Math.hypot(enemy.x - x, enemy.y - y) <= card.radius + enemy.radius) enemy.hp -= card.dmg;
                 });
-            }, 150);
+            }, 200);
             return;
         }
 
@@ -238,8 +238,8 @@ const BattleEngine = {
         for (let i = 0; i < spawnCount; i++) {
             this.entities.push({
                 ...card, id: card.id + "_" + Date.now() + "_" + i, side: side,
-                x: x + (i * 15 - (spawnCount - 1) * 7), y: y + (side === 'enemy' ? -i*4 : i*4),
-                radius: card.type === 'estructura' ? 16 : 12, maxHp: card.hp, lastAttack: 0
+                x: x + (i * 18 - (spawnCount - 1) * 9), y: y + (side === 'enemy' ? -i*4 : i*4),
+                radius: card.type === 'estructura' ? 18 : 13, maxHp: card.hp, lastAttack: 0
             });
         }
     },
@@ -251,15 +251,15 @@ const BattleEngine = {
             slot.innerHTML = card ? `
                 <div class="card-item">
                     <div class="card-elixir">${card.cost}</div>
-                    <div style="font-size:1.1rem; margin-top:4px;">${getCardIcon(card.id)}</div>
+                    <div style="font-size:1.4rem; margin-top:4px; filter: drop-shadow(0px 2px 3px rgba(0,0,0,0.5));">${getCardIcon(card.id)}</div>
                     <div class="card-name">${card.name}</div>
                 </div>` : "";
         });
 
         document.getElementById("next-card-slot").innerHTML = this.playerNextCard ? `
-            <div class="card-item" style="width:100%; height:100%; box-shadow:none; opacity:0.6;">
+            <div class="card-item" style="width:100%; height:100%; box-shadow:none; opacity:0.6; background: #1e293b;">
                 <div class="card-elixir" style="width:14px; height:14px; font-size:0.55rem; top:-3px; left:-3px;">${this.playerNextCard.cost}</div>
-                <div style="font-size:0.75rem; margin-top:4px;">${getCardIcon(this.playerNextCard.id)}</div>
+                <div style="font-size:1.1rem; margin-top:4px;">${getCardIcon(this.playerNextCard.id)}</div>
             </div>` : "";
     },
 
@@ -277,23 +277,21 @@ const BattleEngine = {
         this.matchTimer -= dt / 1000;
         if (this.matchTimer <= 0) return this.endMatch('draw');
 
-        // Regeneração de Elixir
-        const regen = dt / 2800;
+        const regen = dt / 2500;
         this.playerElixir = Math.min(10, this.playerElixir + regen);
         this.enemyElixir = Math.min(10, this.enemyElixir + regen);
 
         document.getElementById("elixir-counter").textContent = Math.floor(this.playerElixir);
         document.getElementById("elixir-bar-fill").style.width = `${(this.playerElixir / 10) * 100}%`;
 
-        // Inteligência Artificial Simples
         this.aiDecisionTimer += dt;
-        let aiInterval = AppState.aiDifficulty === 'easy' ? 3000 : AppState.aiDifficulty === 'medium' ? 1800 : 1000;
+        let aiInterval = AppState.aiDifficulty === 'easy' ? 3200 : AppState.aiDifficulty === 'medium' ? 2000 : 1200;
         if (this.aiDecisionTimer >= aiInterval) {
             this.aiDecisionTimer = 0;
             const card = this.enemyHand[Math.floor(Math.random() * this.enemyHand.length)];
             if (card && this.enemyElixir >= card.cost) {
                 this.enemyElixir -= card.cost;
-                this.deployCard(this.width * (0.2 + Math.random() * 0.6), this.height * 0.2, card, 'enemy');
+                this.deployCard(this.width * (0.2 + Math.random() * 0.6), this.height * 0.22, card, 'enemy');
                 const idx = this.enemyHand.indexOf(card);
                 this.enemyHand[idx] = this.enemyDeck.shift(); this.enemyDeck.push(card);
             }
@@ -310,6 +308,7 @@ const BattleEngine = {
 
         this.entities = this.entities.filter(e => {
             if (e.hp <= 0) {
+                this.generateSparkParticles(e.x, e.y, '#94a3b8', 15);
                 if (e.id === 'base_jogador') this.endMatch('enemy');
                 if (e.id === 'base_inimiga') this.endMatch('player');
                 return false;
@@ -332,23 +331,22 @@ const BattleEngine = {
 
             if (!closest) return;
 
-            // Combate básico e disparo de Projéteis
             if (minDist <= ent.range + closest.radius) {
                 if (now - ent.lastAttack >= ent.attackSpeed) {
                     ent.lastAttack = now;
                     if (ent.range > 40) {
-                        this.projectiles.push({ x: ent.x, y: ent.y, target: closest, dmg: ent.dmg, speed: 5 });
+                        this.projectiles.push({ x: ent.x, y: ent.y, target: closest, dmg: ent.dmg, speed: 6.5, side: ent.side });
                     } else {
                         closest.hp -= ent.dmg;
+                        this.generateSparkParticles(closest.x, closest.y, '#ffffff', 3);
                     }
                 }
                 return;
             }
 
-            // Pathfinding em direção às pontes artificiais do Rio Central
             let tx = closest.x; let ty = closest.y;
             const needsBridge = (ent.side === 'player' && ent.y > h/2 && ty < h/2) || (ent.side === 'enemy' && ent.y < h/2 && ty > h/2);
-            if (needsBridge && Math.abs(ent.y - h/2) > 12) {
+            if (needsBridge && Math.abs(ent.y - h/2) > 15) {
                 tx = ent.x < w / 2 ? w * 0.25 : w * 0.75;
                 ty = h / 2;
             }
@@ -364,7 +362,9 @@ const BattleEngine = {
             p.x += Math.cos(angle) * p.speed; p.y += Math.sin(angle) * p.speed;
 
             if (Math.hypot(p.target.x - p.x, p.target.y - p.y) <= p.target.radius) {
-                p.target.hp -= p.dmg; return false;
+                p.target.hp -= p.dmg;
+                this.generateSparkParticles(p.x, p.y, p.side === 'player' ? '#60a5fa' : '#f87171', 8);
+                return false;
             }
             return true;
         });
@@ -374,8 +374,8 @@ const BattleEngine = {
         for (let i = 0; i < count; i++) {
             this.particles.push({
                 type: 'spark', x: x, y: y,
-                vx: (Math.random() - 0.5) * 4, vy: (Math.random() - 0.5) * 4,
-                radius: Math.random() * 2 + 1, color: color, life: 300, startTime: Date.now()
+                vx: (Math.random() - 0.5) * 5, vy: (Math.random() - 0.5) * 5,
+                radius: Math.random() * 2.5 + 1, color: color, life: 400, startTime: Date.now()
             });
         }
     },
@@ -384,48 +384,98 @@ const BattleEngine = {
         const ctx = this.ctx; const w = this.width; const h = this.height;
         ctx.clearRect(0, 0, w, h);
 
-        // Estilização do Tabuleiro (Gramado Alternado)
-        ctx.fillStyle = "#2e5c34"; ctx.fillRect(0, 0, w, h);
-        ctx.fillStyle = "#27522d"; 
-        for(let i=0; i<h; i+=40){ if((i/40)%2===0) ctx.fillRect(0, i, w, 40); }
+        // --- 1. ARENA HD (Grama Estilizada) ---
+        ctx.fillStyle = "#1e3a1f"; ctx.fillRect(0, 0, w, h);
+        ctx.fillStyle = "#14532d"; 
+        for(let i = 0; i < h; i += 32){ 
+            if((i / 32) % 2 === 0) ctx.fillRect(0, i, w, 32); 
+        }
 
-        // O Rio Central
-        ctx.fillStyle = "#1d4ed8"; ctx.fillRect(0, h/2 - 10, w, 20);
+        // Linhas de Demarcação Brancas da Arena (Estilo Campo)
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.08)";
+        ctx.lineWidth = 3;
+        ctx.strokeRect(15, 15, w - 30, h - 30);
+        ctx.beginPath();
+        ctx.moveTo(15, h / 2); ctx.lineTo(w - 15, h / 2);
+        ctx.stroke();
 
-        // Pontes
-        ctx.fillStyle = "#78350f";
-        ctx.fillRect(w * 0.16, h/2 - 14, w * 0.18, 28);
-        ctx.fillRect(w * 0.66, h/2 - 14, w * 0.18, 28);
+        // --- 2. RIO EM DEGRADÊ COM BRILHO ---
+        let riverGrad = ctx.createLinearGradient(0, h/2 - 14, 0, h/2 + 14);
+        riverGrad.addColorStop(0, '#1d4ed8');
+        riverGrad.addColorStop(0.5, '#2563eb');
+        riverGrad.addColorStop(1, '#1e40af');
+        ctx.fillStyle = riverGrad; 
+        ctx.fillRect(15, h/2 - 14, w - 30, 28);
 
-        // Renderização das Torres e Soldados com Glow Sombreado
+        // --- 3. PONTES DE MADEIRA COM SOMBREAMENTO ---
+        const drawBridge = (bx) => {
+            ctx.save();
+            ctx.shadowBlur = 10; ctx.shadowColor = "rgba(0,0,0,0.5)";
+            ctx.fillStyle = "#b45309"; // Cor de madeira
+            ctx.fillRect(bx - 22, h/2 - 18, 44, 36);
+            
+            // Detalhes de tábuas na ponte
+            ctx.shadowBlur = 0;
+            ctx.strokeStyle = "#78350f"; ctx.lineWidth = 2;
+            for (let offset = -12; offset <= 12; offset += 6) {
+                ctx.beginPath(); ctx.moveTo(bx - 22, h/2 + offset); ctx.lineTo(bx + 22, h/2 + offset); ctx.stroke();
+            }
+            ctx.restore();
+        };
+        drawBridge(w * 0.25);
+        drawBridge(w * 0.75);
+
+        // --- 4. RENDERIZAÇÃO DAS ENTIDADES (TORRES E TROPAS) ---
         this.entities.forEach(ent => {
             ctx.save();
-            ctx.shadowBlur = ent.isBase ? 12 : 5;
-            ctx.shadowColor = ent.side === 'player' ? '#2563eb' : '#dc2626';
-            ctx.fillStyle = ent.side === 'player' ? '#2563eb' : '#dc2626';
-
-            ctx.beginPath(); ctx.arc(ent.x, ent.y, ent.radius, 0, Math.PI * 2); ctx.fill();
-            ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 1.5; ctx.stroke();
             
-            ctx.shadowBlur = 0;
-            ctx.fillStyle = "#ffffff"; ctx.font = `${ent.radius * 0.9}px Arial`;
+            // Sombra projetada realista
+            ctx.shadowBlur = 8; ctx.shadowOffsetRect = 4;
+            ctx.shadowColor = "rgba(0, 0, 0, 0.4)";
+            ctx.shadowOffsetY = 4;
+
+            // Base circular metálica neon
+            let mainColor = ent.side === 'player' ? '#2563eb' : '#dc2626';
+            let strokeColor = ent.side === 'player' ? '#60a5fa' : '#f87171';
+            
+            ctx.fillStyle = mainColor;
+            ctx.beginPath(); ctx.arc(ent.x, ent.y, ent.radius, 0, Math.PI * 2); ctx.fill();
+            ctx.strokeStyle = strokeColor; ctx.lineWidth = 3; ctx.stroke();
+            
+            // Desenhar o Ícone Interno Centralizado (Design Sprite)
+            ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
+            ctx.fillStyle = "#ffffff";
+            ctx.font = `bold ${ent.radius * 1.1}px Arial`;
             ctx.textAlign = "center"; ctx.textBaseline = "middle";
             ctx.fillText(getCardIcon(ent.id.split('_')[0]), ent.x, ent.y);
 
+            // Interface Limpa de Barras de Vida (Design Arredondado)
             if (ent.hp < ent.maxHp) {
-                ctx.fillStyle = "rgba(0,0,0,0.5)"; ctx.fillRect(ent.x - ent.radius, ent.y - ent.radius - 7, ent.radius*2, 4);
+                const bw = ent.radius * 2.2; const bh = 6;
+                ctx.fillStyle = "rgba(15, 23, 42, 0.8)"; 
+                ctx.beginPath(); 
+                ctx.roundRect(ent.x - bw/2, ent.y - ent.radius - 12, bw, bh, 3); 
+                ctx.fill();
+
+                let hpPercent = ent.hp / ent.maxHp;
                 ctx.fillStyle = ent.side === 'player' ? '#10b981' : '#f59e0b';
-                ctx.fillRect(ent.x - ent.radius, ent.y - ent.radius - 7, (ent.radius*2) * (ent.hp / ent.maxHp), 4);
+                ctx.beginPath(); 
+                ctx.roundRect(ent.x - bw/2, ent.y - ent.radius - 12, bw * hpPercent, bh, 3); 
+                ctx.fill();
             }
             ctx.restore();
         });
 
-        // Projéteis
+        // --- 5. BALAS/PROJÉTEIS ESTILIZADOS ---
         this.projectiles.forEach(p => {
-            ctx.fillStyle = "#fef08a"; ctx.beginPath(); ctx.arc(p.x, p.y, 3, 0, Math.PI * 2); ctx.fill();
+            ctx.save();
+            ctx.shadowBlur = 10; ctx.shadowColor = p.side === 'player' ? '#3b82f6' : '#ef4444';
+            ctx.fillStyle = "#fff";
+            ctx.beginPath(); ctx.arc(p.x, p.y, 4, 0, Math.PI * 2); ctx.fill();
+            ctx.restore();
         });
 
-        // Partículas Especiais ativos
+        // --- 6. SISTEMA DE PARTÍCULAS (ANIMAÇÕES) ---
         const now = Date.now();
         this.particles = this.particles.filter(p => {
             const age = now - p.startTime;
@@ -433,23 +483,36 @@ const BattleEngine = {
 
             ctx.save();
             if (p.type === 'spark') {
-                p.x += p.vx; p.y += p.vy; ctx.globalAlpha = 1 - (age / p.life);
-                ctx.fillStyle = p.color; ctx.beginPath(); ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2); ctx.fill();
+                p.x += p.vx; p.y += p.vy; 
+                ctx.globalAlpha = 1 - (age / p.life);
+                ctx.fillStyle = p.color; 
+                ctx.beginPath(); ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2); ctx.fill();
             } else if (p.type === 'spell') {
-                ctx.strokeStyle = `rgba(244, 63, 94, ${1 - (age / p.duration)})`; ctx.lineWidth = 2;
-                ctx.beginPath(); ctx.arc(p.x, p.y, (age / p.duration) * p.maxRadius, 0, Math.PI * 2); ctx.stroke();
+                ctx.globalAlpha = 1 - (age / p.duration);
+                ctx.fillStyle = p.color;
+                ctx.beginPath(); ctx.arc(p.x, p.y, (age / p.duration) * p.maxRadius, 0, Math.PI * 2); ctx.fill();
+                ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 1.5; ctx.stroke();
             }
             ctx.restore();
             return true;
         });
 
-        // Interface Gráfica Flutuante do Sistema Drag & Drop (Ghost)
+        // --- 7. ZONA DE INVOCAÇÃO ATIVA (GHOST DRAG & DROP) ---
         if (dragTracker.isDragging && dragTracker.currentX > 0) {
             ctx.save();
-            ctx.fillStyle = dragTracker.currentY > h/2 + 10 || dragTracker.card.type === 'hechizo' ? "rgba(16, 185, 129, 0.3)" : "rgba(239, 68, 68, 0.3)";
-            ctx.beginPath(); ctx.arc(dragTracker.currentX, dragTracker.currentY, dragTracker.card.type === 'hechizo' ? dragTracker.card.radius : 20, 0, Math.PI*2); ctx.fill();
+            let isValid = dragTracker.currentY > h/2 + 10 || dragTracker.card.type === 'hechizo';
+            
+            // Área de impacto ou spawn translúcida
+            ctx.fillStyle = isValid ? "rgba(16, 185, 129, 0.25)" : "rgba(239, 68, 68, 0.3)";
+            ctx.strokeStyle = isValid ? "#10b981" : "#ef4444"; ctx.lineWidth = 2;
+            
+            let radiusSize = dragTracker.card.type === 'hechizo' ? dragTracker.card.radius : 24;
+            ctx.beginPath(); ctx.arc(dragTracker.currentX, dragTracker.currentY, radiusSize, 0, Math.PI*2); 
+            ctx.fill(); ctx.stroke();
 
-            ctx.fillStyle = "rgba(255, 255, 255, 0.8)"; ctx.font = "22px Arial";
+            // Ícone gigante seguindo o ponteiro
+            ctx.shadowBlur = 12; ctx.shadowColor = "rgba(0,0,0,0.4)";
+            ctx.fillStyle = "rgba(255, 255, 255, 0.95)"; ctx.font = "32px Arial";
             ctx.textAlign = "center"; ctx.textBaseline = "middle";
             ctx.fillText(getCardIcon(dragTracker.card.id), dragTracker.currentX, dragTracker.currentY);
             ctx.restore();
