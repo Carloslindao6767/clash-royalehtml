@@ -1,348 +1,594 @@
-:root {
-    --bg-dark: #090d16;
-    --card-bg: #151c33;
-    --accent-blue: #2563eb;
-    --accent-red: #dc2626;
-    --elixir-color: #d946ef;
-    --text-light: #f8fafc;
-    --gold: #f59e0b;
+// --- BANCO DE DADOS DAS CARTAS ---
+const CARD_POOL = [
+    { id: 'caballero', name: 'Cavaleiro', cost: 3, type: 'tropa', hp: 1400, dmg: 160, range: 30, speed: 1.8, attackSpeed: 1200, target: 'terrestre' },
+    { id: 'arquera', name: 'Arqueiras', cost: 3, type: 'tropa', hp: 550, dmg: 90, range: 140, speed: 2.2, attackSpeed: 1000, target: 'mixto' },
+    { id: 'barbaro', name: 'Bárbaro', cost: 5, type: 'tropa', hp: 1150, dmg: 145, range: 30, speed: 1.5, attackSpeed: 1400, target: 'terrestre' },
+    { id: 'mini_pekka', name: 'Mini P.E.K.K.A', cost: 4, type: 'tropa', hp: 1250, dmg: 480, range: 35, speed: 2.6, attackSpeed: 1600, target: 'terrestre' },
+    { id: 'gigante', name: 'Gigante', cost: 5, type: 'tropa', hp: 3400, dmg: 220, range: 35, speed: 1.1, attackSpeed: 1500, target: 'estruturas' },
+    { id: 'mosquetera', name: 'Mosqueteira', cost: 4, type: 'tropa', hp: 750, dmg: 190, range: 165, speed: 1.8, attackSpeed: 1100, target: 'mixto' },
+    { id: 'mega_cavaleiro', name: 'Mega Cavaleiro', cost: 7, type: 'tropa', hp: 3300, dmg: 250, range: 40, speed: 1.7, attackSpeed: 1700, target: 'terrestre', splash: true },
+    { id: 'pekka', name: 'P.E.K.K.A', cost: 7, type: 'tropa', hp: 3600, dmg: 680, range: 40, speed: 1.2, attackSpeed: 1800, target: 'terrestre' },
+    { id: 'canon', name: 'Canhão', cost: 3, type: 'estructura', hp: 880, dmg: 160, range: 135, speed: 0, attackSpeed: 800, target: 'terrestre', lifetime: 30000 },
+    { id: 'torre_bombardera', name: 'T. Bombardeira', cost: 4, type: 'estructura', hp: 1150, dmg: 200, range: 135, speed: 0, attackSpeed: 1600, target: 'terrestre', lifetime: 35000, splash: true },
+    { id: 'bola_fuego', name: 'Bola de Fogo', cost: 4, type: 'hechizo', dmg: 580, radius: 65 },
+    { id: 'flechas', name: 'Flechas', cost: 3, type: 'hechizo', dmg: 300, radius: 95 },
+    { id: 'descarga', name: 'Zap', cost: 2, type: 'hechizo', dmg: 130, radius: 50, regulator: true },
+    { id: 'rey_esqueleto', name: 'Rei Esqueleto', cost: 4, type: 'campeon', hp: 2100, dmg: 190, range: 42, speed: 1.4, attackSpeed: 1300, target: 'terrestre' },
+    { id: 'reina_arquera', name: 'Reina Arqueira', cost: 5, type: 'campeon', hp: 1050, dmg: 210, range: 185, speed: 1.8, attackSpeed: 900, target: 'mixto' }
+];
+
+const AppState = {
+    selectedDeck: [],
+    aiDifficulty: 'medium',
+    gameRunning: false
+};
+
+// Controle Global do Sistema Drag and Drop Flutuante (Canvas Native)
+let dragTracker = {
+    isDragging: false,
+    card: null,
+    handIndex: null,
+    currentX: 0,
+    currentY: 0
+};
+
+document.addEventListener("DOMContentLoaded", () => {
+    initDeckBuilder();
+    setupMenuEvents();
+});
+
+function initDeckBuilder() {
+    const poolContainer = document.getElementById("cards-pool");
+    const slotsContainer = document.getElementById("deck-slots-container");
+    
+    slotsContainer.innerHTML = "";
+    for(let i=0; i<8; i++) {
+        const slot = document.createElement("div");
+        slot.className = "deck-slot";
+        slot.innerHTML = `<span style="font-size:0.5rem; color:#475569;">VAZIO</span>`;
+        slotsContainer.appendChild(slot);
+    }
+
+    poolContainer.innerHTML = "";
+    CARD_POOL.forEach(card => {
+        const cardEl = document.createElement("div");
+        cardEl.className = `card-item ${card.type === 'campeon' ? 'campeon' : ''}`;
+        cardEl.innerHTML = `
+            <div class="card-elixir">${card.cost}</div>
+            <div style="font-size:1.1rem; margin-top:2px;">${getCardIcon(card.id)}</div>
+            <div class="card-name">${card.name}</div>
+        `;
+        cardEl.addEventListener("click", () => toggleCardInDeck(card, cardEl));
+        poolContainer.appendChild(cardEl);
+    });
 }
 
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-    user-select: none;
-    -webkit-user-select: none;
-    font-family: 'Arial Black', Impact, sans-serif;
+function getCardIcon(id) {
+    const icons = {
+        caballero: '⚔️', arquera: '🏹', barbaro: '🪓', mini_pekka: '🤖', gigante: '🛡️',
+        mosquetera: '🔫', canon: '💥', torre_bombardera: '💣', bola_fuego: '🔥',
+        flechas: '🏹', descarga: '⚡', rey_esqueleto: '💀', reina_arquera: '👑',
+        mega_cavaleiro: '⚜️', pekka: '👹'
+    };
+    return icons[id] || '🃏';
 }
 
-body {
-    background-color: var(--bg-dark);
-    color: var(--text-light);
-    overflow: hidden;
-    width: 100vw;
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+function toggleCardInDeck(card, element) {
+    const index = AppState.selectedDeck.findIndex(c => c.id === card.id);
+    if (index > -1) {
+        AppState.selectedDeck.splice(index, 1);
+        element.classList.remove("selected-in-deck");
+    } else {
+        if (AppState.selectedDeck.length >= 8) return;
+        if (card.type === 'campeon' && AppState.selectedDeck.some(c => c.type === 'campeon')) return;
+        AppState.selectedDeck.push(card);
+        element.classList.add("selected-in-deck");
+    }
+    updateDeckUI();
 }
 
-.app-container {
-    display: flex;
-    width: 100%;
-    height: 100%;
-    max-width: 450px;
-    background-color: #0f172a;
-    position: relative;
-    box-shadow: 0 0 30px rgba(0,0,0,0.75);
+function updateDeckUI() {
+    const slots = document.querySelectorAll(".deck-slot");
+    slots.forEach((slot, i) => {
+        const card = AppState.selectedDeck[i];
+        if (card) {
+            slot.innerHTML = `
+                <div class="card-item ${card.type === 'campeon' ? 'campeon' : ''}" style="width:100%; height:100%; box-shadow:none; padding:2px;">
+                    <div class="card-elixir" style="width:14px; height:14px; font-size:0.55rem; top:-2px; left:-2px;">${card.cost}</div>
+                    <div style="font-size:0.8rem;">${getCardIcon(card.id)}</div>
+                    <div class="card-name" style="font-size:0.5rem; margin:0;">${card.name}</div>
+                </div>
+            `;
+        } else {
+            slot.innerHTML = `<span style="font-size:0.5rem; color:#475569;">VAZIO</span>`;
+        }
+    });
+    document.getElementById("start-battle-btn").disabled = (AppState.selectedDeck.length !== 8);
 }
 
-.menu-section, .game-section {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    position: absolute;
-    top: 0;
-    left: 0;
-    background-color: #0f172a;
-    transition: opacity 0.3s ease;
+function setupMenuEvents() {
+    document.getElementById("start-battle-btn").addEventListener("click", () => {
+        AppState.aiDifficulty = document.getElementById("ai-difficulty").value;
+        document.getElementById("deck-menu").classList.add("hidden");
+        document.getElementById("game-screen").classList.remove("hidden");
+        BattleEngine.init();
+    });
 }
 
-.hidden {
-    display: none !important;
-    opacity: 0;
-    pointer-events: none;
-}
+// --- MOTOR DE BATALHA COM RENDERIZADO APRIMORADO E DRAG & DROP ---
+const BattleEngine = {
+    canvas: null, ctx: null, width: 0, height: 0,
+    entities: [], projectiles: [], particles: [],
+    lastTime: 0, matchTimer: 180, isExtraTime: false,
+    elixirRegenRate: 1.0, gameOver: false,
+    
+    playerElixir: 5.0, playerDeck: [], playerHand: [], playerNextCard: null,
+    enemyElixir: 5.0, enemyDeck: [], enemyHand: [], aiDecisionTimer: 0,
 
-/* Menu e Construtor de Decks */
-.menu-header {
-    padding: 12px;
-    text-align: center;
-    background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
-    border-bottom: 2px solid #334155;
-}
+    init() {
+        this.canvas = document.getElementById("battle-canvas");
+        this.ctx = this.canvas.getContext("2d");
+        
+        this.resizeCanvas();
+        this.entities = []; this.projectiles = []; this.particles = [];
+        this.gameOver = false; this.isExtraTime = false;
+        this.matchTimer = 180; this.playerElixir = 5.0; this.enemyElixir = 5.0;
 
-.menu-header h1 {
-    font-size: 1.5rem;
-    color: var(--gold);
-    text-shadow: 2px 2px #000;
-}
+        this.playerDeck = [...AppState.selectedDeck].sort(() => Math.random() - 0.5);
+        this.playerHand = this.playerDeck.splice(0, 4);
+        this.playerNextCard = this.playerDeck.shift();
 
-.menu-header p {
-    font-size: 0.7rem;
-    color: #94a3b8;
-}
+        const aiPool = CARD_POOL.filter(c => c.type !== 'campeon').sort(() => Math.random() - 0.5).slice(0, 7);
+        aiPool.push(CARD_POOL.find(c => c.id === 'rey_esqueleto'));
+        this.enemyDeck = [...aiPool].sort(() => Math.random() - 0.5);
+        this.enemyHand = this.enemyDeck.splice(0, 4);
 
-.deck-status {
-    background-color: #0b0f19;
-    padding: 10px;
-    border-bottom: 2px solid #334155;
-}
+        this.spawnBases();
+        this.setupDragAndDrop();
+        this.updateHandUI();
+        
+        this.lastTime = performance.now();
+        requestAnimationFrame((t) => this.loop(t));
+    },
 
-#deck-slots-container {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 6px;
-    margin-bottom: 8px;
-}
+    resizeCanvas() {
+        const container = document.getElementById("canvas-container");
+        this.width = container.clientWidth;
+        this.height = container.clientHeight;
+        this.canvas.width = this.width;
+        this.canvas.height = this.height;
+    },
 
-.deck-slot {
-    height: 65px;
-    background-color: #1e293b;
-    border: 2px dashed #475569;
-    border-radius: 6px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
+    spawnBases() {
+        const w = this.width; const h = this.height;
+        // Rei Jogador
+        this.entities.push({ id: 'base_jogador', type: 'estructura', side: 'player', isBase: true, x: w / 2, y: h - 50, radius: 26, hp: 5000, maxHp: 5000, dmg: 110, range: 150, attackSpeed: 1000, lastAttack: 0 });
+        // Princesas Jogador
+        this.entities.push({ id: 'torre_p1', type: 'estructura', side: 'player', isBase: false, x: w * 0.25, y: h - 120, radius: 18, hp: 3000, maxHp: 3000, dmg: 90, range: 160, attackSpeed: 800, lastAttack: 0 });
+        this.entities.push({ id: 'torre_p2', type: 'estructura', side: 'player', isBase: false, x: w * 0.75, y: h - 120, radius: 18, hp: 3000, maxHp: 3000, dmg: 90, range: 160, attackSpeed: 800, lastAttack: 0 });
 
-.controls {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 10px;
-}
+        // Rei Inimigo
+        this.entities.push({ id: 'base_inimiga', type: 'estructura', side: 'enemy', isBase: true, x: w / 2, y: 50, radius: 26, hp: 5000, maxHp: 5000, dmg: 110, range: 150, attackSpeed: 1000, lastAttack: 0 });
+        // Princesas Inimigas
+        this.entities.push({ id: 'torre_e1', type: 'estructura', side: 'enemy', isBase: false, x: w * 0.25, y: 120, radius: 18, hp: 3000, maxHp: 3000, dmg: 90, range: 160, attackSpeed: 800, lastAttack: 0 });
+        this.entities.push({ id: 'torre_e2', type: 'estructura', side: 'enemy', isBase: false, x: w * 0.75, y: 120, radius: 18, hp: 3000, maxHp: 3000, dmg: 90, range: 160, attackSpeed: 800, lastAttack: 0 });
+    },
 
-.difficulty-select {
-    display: flex;
-    flex-direction: column;
-    font-size: 0.7rem;
-}
+    setupDragAndDrop() {
+        const slots = document.querySelectorAll(".hand-slot");
+        
+        const handleDragStart = (index, element) => {
+            const card = this.playerHand[index];
+            if (!card || this.playerElixir < card.cost) return;
 
-.difficulty-select select {
-    background-color: #334155;
-    color: white;
-    border: 1px solid #475569;
-    padding: 4px;
-    border-radius: 4px;
-    outline: none;
-}
+            dragTracker.isDragging = true;
+            dragTracker.card = card;
+            dragTracker.handIndex = index;
+            element.classList.add("dragging-active");
+        };
 
-#start-battle-btn {
-    flex-grow: 1;
-    background: linear-gradient(180deg, #10b981 0%, #047857 100%);
-    color: white;
-    border: none;
-    padding: 10px;
-    border-radius: 6px;
-    font-size: 1rem;
-    cursor: pointer;
-    box-shadow: 0 3px 0 #047857;
-}
+        slots.forEach((slot, idx) => {
+            slot.addEventListener("mousedown", () => handleDragStart(idx, slot));
+            slot.addEventListener("touchstart", (e) => {
+                handleDragStart(idx, slot);
+            }, { passive: true });
+        });
 
-#start-battle-btn:disabled {
-    background: #475569;
-    box-shadow: none;
-    color: #94a3b8;
-    cursor: not-allowed;
-}
+        // Eventos Globais de Movimentação no Window/Canvas
+        const moveDrag = (clientX, clientY) => {
+            if (!dragTracker.isDragging) return;
+            const rect = this.canvas.getBoundingClientRect();
+            dragTracker.currentX = clientX - rect.left;
+            dragTracker.currentY = clientY - rect.top;
+        };
 
-.pool-section {
-    flex-grow: 1;
-    overflow-y: auto;
-    padding: 10px;
-}
+        window.addEventListener("mousemove", (e) => moveDrag(e.clientX, e.clientY));
+        window.addEventListener("touchmove", (e) => {
+            if(e.touches.length > 0) moveDrag(e.touches[0].clientX, e.touches[0].clientY);
+        }, { passive: true });
 
-.pool-section h2 {
-    font-size: 0.9rem;
-    margin-bottom: 6px;
-    border-left: 4px solid var(--gold);
-    padding-left: 6px;
-}
+        const endDrag = () => {
+            if (!dragTracker.isDragging) return;
 
-.cards-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 6px;
-}
+            const x = dragTracker.currentX;
+            const y = dragTracker.currentY;
+            const card = dragTracker.card;
 
-/* Cartas */
-.card-item {
-    background-color: var(--card-bg);
-    border: 2px solid #334155;
-    border-radius: 6px;
-    padding: 6px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    position: relative;
-    cursor: grab;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.4);
-}
+            // Verifica se soltou dentro da área válida do canvas
+            if (x >= 0 && x <= this.width && y >= 0 && y <= this.height) {
+                if (this.playerElixir >= card.cost) {
+                    if (this.validateDeploymentZone(x, y, card.type, 'player')) {
+                        this.playerElixir -= card.cost;
+                        this.deployCard(x, y, card, 'player');
 
-.card-item:active {
-    cursor: grabbing;
-}
+                        // Ciclo de rotação de cartas
+                        this.playerHand[dragTracker.handIndex] = this.playerNextCard;
+                        this.playerDeck.push(card);
+                        this.playerNextCard = this.playerDeck.shift();
+                        this.updateHandUI();
+                    } else {
+                        this.triggerStatusText("ZONA INIMIGA BLOQUEADA!");
+                    }
+                } else {
+                    this.triggerStatusText("ELIXIR INSUFICIENTE");
+                }
+            }
 
-.card-item.campeon {
-    border-color: var(--gold);
-    background: linear-gradient(135deg, #1e2640 0%, #451a03 100%);
-}
+            // Reseta trackers
+            dragTracker.isDragging = false;
+            dragTracker.card = null;
+            dragTracker.handIndex = null;
+            slots.forEach(s => s.classList.remove("dragging-active"));
+        };
 
-.card-item.selected-in-deck {
-    border-color: #10b981;
-    opacity: 0.4;
-}
+        window.addEventListener("mouseup", endDrag);
+        window.addEventListener("touchend", endDrag);
+    },
 
-.card-elixir {
-    position: absolute;
-    top: -4px;
-    left: -4px;
-    background-color: var(--elixir-color);
-    color: white;
-    font-size: 0.65rem;
-    width: 18px;
-    height: 18px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 1px solid white;
-}
+    validateDeploymentZone(x, y, cardType, side) {
+        if (cardType === 'hechizo') return true;
+        const h = this.height;
+        if (side === 'player') {
+            return y > h / 2 + 10 && y <= h - 20; 
+        } else {
+            return y < h / 2 - 10 && y >= 20;
+        }
+    },
 
-.card-name {
-    font-size: 0.65rem;
-    margin-top: 4px;
-    text-align: center;
-}
+    deployCard(x, y, card, side) {
+        this.createExplosionParticle(x, y, side === 'player' ? '#3b82f6' : '#ef4444', 15);
 
-/* Arena Visuals */
-#ui-top {
-    position: absolute;
-    top: 8px;
-    left: 0;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    pointer-events: none;
-    z-index: 10;
-}
+        if (card.type === 'hechizo') {
+            this.executeSpell(x, y, card, side);
+            return;
+        }
 
-#timer-display {
-    background-color: rgba(15, 23, 42, 0.85);
-    padding: 4px 14px;
-    border-radius: 20px;
-    font-size: 0.9rem;
-    border: 2px solid #334155;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-}
+        if (card.type === 'estructura') {
+            this.entities.push({ ...card, id: card.id + "_" + Date.now(), side: side, x: x, y: y, radius: 16, maxHp: card.hp, spawnTime: Date.now(), lastAttack: 0 });
+            return;
+        }
 
-#match-status-text {
-    font-size: 1.2rem;
-    color: var(--gold);
-    text-shadow: 2px 2px #000;
-    margin-top: 4px;
-    opacity: 0;
-}
+        const count = (card.id === 'arquera') ? 2 : (card.id === 'barbaro') ? 3 : 1;
+        for (let i = 0; i < count; i++) {
+            const offsetX = (i * 18) - ((count - 1) * 9);
+            this.entities.push({
+                ...card, id: card.id + "_" + Date.now() + "_" + i, side: side,
+                x: x + offsetX, y: y + (side === 'enemy' ? -i*5 : i*5), radius: card.cost >= 7 ? 15 : 11, maxHp: card.hp, lastAttack: 0, speed: card.speed
+            });
+        }
+    },
 
-#canvas-container {
-    flex-grow: 1;
-    width: 100%;
-    background-color: #1e3a1f;
-    position: relative;
-}
+    executeSpell(x, y, spell, side) {
+        this.particles.push({ type: 'spell_cast', x: x, y: y, maxRadius: spell.radius, currentRadius: 0, color: spell.id === 'descarga' ? 'rgba(56, 189, 248, 0.45)' : 'rgba(249, 115, 22, 0.45)', duration: 400, startTime: Date.now() });
+        setTimeout(() => {
+            this.entities.filter(e => e.side !== side).forEach(target => {
+                if (Math.hypot(target.x - x, target.y - y) <= spell.radius + target.radius) {
+                    target.hp -= spell.dmg;
+                    if(spell.regulator) target.stunnedUntil = Date.now() + 800;
+                }
+            });
+        }, 200);
+    },
 
-#battle-canvas {
-    display: block;
-    width: 100%;
-    height: 100%;
-}
+    updateHandUI() {
+        const slots = document.querySelectorAll(".hand-slot");
+        slots.forEach((slot, i) => {
+            const card = this.playerHand[i];
+            if (card) {
+                slot.innerHTML = `
+                    <div class="card-item ${card.type === 'campeon' ? 'campeon' : ''}">
+                        <div class="card-elixir">${card.cost}</div>
+                        <div style="font-size:1.1rem; margin-top:4px;">${getCardIcon(card.id)}</div>
+                        <div class="card-name">${card.name}</div>
+                    </div>
+                `;
+            } else {
+                slot.innerHTML = "";
+            }
+        });
 
-/* Painel de Controle Inferior (Mão do Deck) */
-#ui-bottom {
-    background-color: #0b0f19;
-    padding: 10px;
-    border-top: 3px solid #1e293b;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
+        const nextSlot = document.getElementById("next-card-slot");
+        if (this.playerNextCard) {
+            nextSlot.innerHTML = `
+                <div class="card-item ${this.playerNextCard.type === 'campeon' ? 'campeon' : ''}" style="width:100%; height:100%; box-shadow:none; opacity:0.6;">
+                    <div class="card-elixir" style="width:14px; height:14px; font-size:0.55rem; top:-3px; left:-3px;">${this.playerNextCard.cost}</div>
+                    <div style="font-size:0.75rem; margin-top:4px;">${getCardIcon(this.playerNextCard.id)}</div>
+                </div>
+            `;
+        }
+    },
 
-#elixir-section {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
+    triggerStatusText(msg) {
+        const txtEl = document.getElementById("match-status-text");
+        txtEl.textContent = msg; txtEl.style.opacity = 1;
+        setTimeout(() => { txtEl.style.opacity = 0; }, 1500);
+    },
 
-#elixir-counter {
-    background-color: var(--elixir-color);
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.9rem;
-    border: 1px solid white;
-}
+    loop(timestamp) {
+        if (!this.gameOver) {
+            const dt = timestamp - this.lastTime;
+            this.lastTime = timestamp;
 
-.elixir-bar-container {
-    flex-grow: 1;
-    height: 12px;
-    background-color: #1e293b;
-    border-radius: 6px;
-    overflow: hidden;
-}
+            this.updateTimers(dt);
+            this.updateElixir(dt);
+            this.aiLogic(dt);
+            this.updatePhysics(dt);
+            this.render();
 
-#elixir-bar-fill {
-    height: 100%;
-    width: 0%;
-    background: linear-gradient(90deg, #c026d3 0%, #f472b6 100%);
-}
+            requestAnimationFrame((t) => this.loop(t));
+        }
+    },
 
-#hand-section {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-}
+    updateTimers(dt) {
+        this.matchTimer -= dt / 1000;
+        if (this.matchTimer <= 0) {
+            if (!this.isExtraTime) {
+                this.isExtraTime = true;
+                this.elixirRegenRate = 2.0;
+                this.matchTimer = 60;
+                this.triggerStatusText("MORTE SÚBITA!");
+            } else {
+                this.endMatchByScore();
+            }
+        }
+        const display = document.getElementById("timer-display");
+        const mins = Math.max(0, Math.floor(this.matchTimer / 60));
+        const secs = Math.max(0, Math.floor(this.matchTimer % 60));
+        display.textContent = `${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
+    },
 
-#next-card-preview {
-    width: 55px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
+    updateElixir(dt) {
+        const increment = (dt / 2800) * this.elixirRegenRate;
+        this.playerElixir = Math.min(10, this.playerElixir + increment);
+        this.enemyElixir = Math.min(10, this.enemyElixir + increment);
 
-#next-card-preview .label {
-    font-size: 0.45rem;
-    color: #64748b;
-    margin-bottom: 2px;
-}
+        document.getElementById("elixir-counter").textContent = Math.floor(this.playerElixir);
+        document.getElementById("elixir-bar-fill").style.width = `${(this.playerElixir / 10) * 100}%`;
+    },
 
-#next-card-slot {
-    width: 45px;
-    height: 60px;
-    background-color: #1e293b;
-    border-radius: 4px;
-    opacity: 0.7;
-}
+    aiLogic(dt) {
+        this.aiDecisionTimer += dt;
+        let interval = AppState.aiDifficulty === 'easy' ? 2500 : AppState.aiDifficulty === 'medium' ? 1500 : 800;
 
-#player-hand {
-    flex-grow: 1;
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 6px;
-}
+        if (this.aiDecisionTimer >= interval) {
+            this.aiDecisionTimer = 0;
+            const card = this.enemyHand[Math.floor(Math.random() * this.enemyHand.length)];
 
-.hand-slot {
-    height: 75px;
-    background-color: #141b2d;
-    border-radius: 6px;
-    border: 2px dashed #334155;
-    position: relative;
-    transition: transform 0.1s ease;
-}
+            if (card && this.enemyElixir >= card.cost) {
+                let tx = this.width * (0.2 + Math.random() * 0.6);
+                let ty = this.height * 0.2;
+                
+                this.enemyElixir -= card.cost;
+                this.deployCard(tx, ty, card, 'enemy');
 
-/* Ghost visual temporário para o Dragging */
-.hand-slot .card-item {
-    width: 100%;
-    height: 100%;
-}
+                const idx = this.enemyHand.indexOf(card);
+                this.enemyHand[idx] = this.enemyDeck.shift();
+                this.enemyDeck.push(card);
+            }
+        }
+    },
 
-.dragging-active {
-    opacity: 0.5;
-    transform: scale(0.95);
-}
+    updatePhysics(dt) {
+        const w = this.width; const h = this.height;
+        const now = Date.now();
+        const bridgeLeft = { x: w * 0.25, y: h / 2 };
+        const bridgeRight = { x: w * 0.75, y: h / 2 };
+
+        this.entities.forEach(e => { if (e.lifetime && (now - e.spawnTime >= e.lifetime)) e.hp = 0; });
+
+        this.entities = this.entities.filter(e => {
+            if (e.hp <= 0) {
+                this.createExplosionParticle(e.x, e.y, '#94a3b8', 8);
+                if (e.id === 'base_jogador') this.endMatch('enemy');
+                if (e.id === 'base_inimiga') this.endMatch('player');
+                return false;
+            }
+            return true;
+        });
+
+        this.entities.forEach(ent => {
+            if (ent.hp <= 0 || ent.speed === 0) return;
+            if (ent.stunnedUntil && ent.stunnedUntil > now) return;
+
+            let targets = this.entities.filter(t => t.side !== ent.side);
+            if (ent.target === 'estructuras') targets = targets.filter(t => t.type === 'estructura');
+            if (targets.length === 0) return;
+
+            let currentTarget = null;
+            let minDist = Infinity;
+            targets.forEach(t => {
+                const d = Math.hypot(t.x - ent.x, t.y - ent.y);
+                if (d < minDist) { minDist = d; currentTarget = t; }
+            });
+
+            if (!currentTarget) return;
+
+            // Lógica de ataque
+            if (minDist <= ent.range + currentTarget.radius) {
+                if (now - ent.lastAttack >= ent.attackSpeed) {
+                    ent.lastAttack = now;
+                    if (ent.range > 40) {
+                        this.projectiles.push({ x: ent.x, y: ent.y, target: currentTarget, dmg: ent.dmg, speed: 6, splash: ent.splash });
+                    } else {
+                        if (ent.splash) this.dealSplashDamage(currentTarget.x, currentTarget.y, 50, ent.dmg, ent.side);
+                        else currentTarget.hp -= ent.dmg;
+                    }
+                }
+                return;
+            }
+
+            // Movimentação inteligente pelas pontes
+            let tx = currentTarget.x;
+            let ty = currentTarget.y;
+            const crossRiver = (ent.side === 'player' && ent.y > h/2 && ty < h/2) || (ent.side === 'enemy' && ent.y < h/2 && ty > h/2);
+
+            if (crossRiver && Math.abs(ent.y - h/2) > 10) {
+                const targetBridge = (ent.x < w / 2) ? bridgeLeft : bridgeRight;
+                tx = targetBridge.x; ty = targetBridge.y;
+            }
+
+            const angle = Math.atan2(ty - ent.y, tx - ent.x);
+            ent.x += Math.cos(angle) * (ent.speed * (dt / 16.6));
+            ent.y += Math.sin(angle) * (ent.speed * (dt / 16.6));
+        });
+
+        this.projectiles = this.projectiles.filter(p => {
+            if (p.target.hp <= 0) return false;
+            const angle = Math.atan2(p.target.y - p.y, p.target.x - p.x);
+            p.x += Math.cos(angle) * p.speed;
+            p.y += Math.sin(angle) * p.speed;
+
+            if (Math.hypot(p.target.x - p.x, p.target.y - p.y) <= p.target.radius) {
+                if (p.splash) this.dealSplashDamage(p.target.x, p.target.y, 50, p.dmg, p.target.side === 'player' ? 'enemy' : 'player');
+                else p.target.hp -= p.dmg;
+                return false;
+            }
+            return true;
+        });
+    },
+
+    dealSplashDamage(x, y, radius, dmg, attackerSide) {
+        this.entities.forEach(e => {
+            if (e.side !== attackerSide && Math.hypot(e.x - x, e.y - y) <= radius + e.radius) e.hp -= dmg;
+        });
+        this.particles.push({ type: 'explosion', x: x, y: y, maxRadius: radius, currentRadius: 0, duration: 250, startTime: Date.now() });
+    },
+
+    createExplosionParticle(x, y, color, count) {
+        for (let i = 0; i < count; i++) {
+            this.particles.push({
+                type: 'spark', x: x, y: y,
+                vx: (Math.random() - 0.5) * 5, vy: (Math.random() - 0.5) * 5,
+                radius: Math.random() * 2.5 + 1, color: color, life: 350 + Math.random() * 200, startTime: Date.now()
+            });
+        }
+    },
+
+    render() {
+        const ctx = this.ctx; const w = this.width; const h = this.height;
+        ctx.clearRect(0,0,w,h);
+
+        // Gramado com linhas de demarcação estilizadas
+        ctx.fillStyle = "#2e5c34"; ctx.fillRect(0, 0, w, h);
+        ctx.fillStyle = "#27522d"; 
+        for(let i=0; i<h; i+=40){ if((i/40)%2===0) ctx.fillRect(0, i, w, 40); }
+
+        // O Rio Central
+        let riverGrad = ctx.createLinearGradient(0, h/2-15, 0, h/2+15);
+        riverGrad.addColorStop(0, '#1d4ed8'); riverGrad.addColorStop(0.5, '#1e40af'); riverGrad.addColorStop(1, '#1d4ed8');
+        ctx.fillStyle = riverGrad; ctx.fillRect(0, h/2 - 12, w, 24);
+
+        // Pontes Realistas
+        ctx.fillStyle = "#78350f";
+        ctx.fillRect(w * 0.16, h / 2 - 16, w * 0.18, 32);
+        ctx.fillRect(w * 0.66, h / 2 - 16, w * 0.18, 32);
+        ctx.strokeStyle = "#451a03"; ctx.lineWidth = 2;
+        ctx.strokeRect(w * 0.16, h / 2 - 16, w * 0.18, 32);
+        ctx.strokeRect(w * 0.66, h / 2 - 16, w * 0.18, 32);
+
+        // Entidades (Torres e Tropas) com efeito Iluminação (Glow)
+        this.entities.forEach(ent => {
+            ctx.save();
+            ctx.shadowBlur = ent.isBase ? 15 : 6;
+            ctx.shadowColor = ent.side === 'player' ? '#2563eb' : '#dc2626';
+
+            ctx.fillStyle = ent.side === 'player' ? '#2563eb' : '#dc2626';
+            ctx.beginPath(); ctx.arc(ent.x, ent.y, ent.radius, 0, Math.PI * 2); ctx.fill();
+            ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 2; ctx.stroke();
+            
+            // Ícone Texturizado interno
+            ctx.shadowBlur = 0;
+            ctx.fillStyle = "#ffffff"; ctx.font = `${ent.radius * 0.95}px Arial`;
+            ctx.textAlign = "center"; ctx.textBaseline = "middle";
+            ctx.fillText(getCardIcon(ent.id.split('_')[0]), ent.x, ent.y);
+
+            // Barras de Vida Clean
+            if (ent.hp < ent.maxHp) {
+                const bw = ent.radius * 2; const bh = 4;
+                ctx.fillStyle = "rgba(0,0,0,0.65)"; ctx.fillRect(ent.x - ent.radius, ent.y - ent.radius - 8, bw, bh);
+                ctx.fillStyle = ent.side === 'player' ? '#10b981' : '#f59e0b';
+                ctx.fillRect(ent.x - ent.radius, ent.y - ent.radius - 8, bw * (ent.hp / ent.maxHp), bh);
+            }
+            ctx.restore();
+        });
+
+        // Projéteis
+        this.projectiles.forEach(p => {
+            ctx.fillStyle = "#fef08a"; ctx.shadowBlur = 8; ctx.shadowColor = "#facc15";
+            ctx.beginPath(); ctx.arc(p.x, p.y, 4, 0, Math.PI * 2); ctx.fill();
+            ctx.shadowBlur = 0;
+        });
+
+        // Partículas Dinâmicas
+        const now = Date.now();
+        this.particles = this.particles.filter(p => {
+            const age = now - p.startTime;
+            if (p.type === 'spark' && age >= p.life) return false;
+            if ((p.type === 'explosion' || p.type === 'spell_cast') && age >= p.duration) return false;
+
+            ctx.save();
+            if (p.type === 'spark') {
+                p.x += p.vx; p.y += p.vy;
+                ctx.globalAlpha = 1 - (age / p.life);
+                ctx.fillStyle = p.color; ctx.beginPath(); ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2); ctx.fill();
+            } else if (p.type === 'explosion') {
+                ctx.strokeStyle = `rgba(244, 63, 94, ${1 - (age / p.duration)})`; ctx.lineWidth = 3;
+                ctx.beginPath(); ctx.arc(p.x, p.y, (age / p.duration) * p.maxRadius, 0, Math.PI * 2); ctx.stroke();
+            } else if (p.type === 'spell_cast') {
+                ctx.fillStyle = p.color; ctx.beginPath(); ctx.arc(p.x, p.y, (age / p.duration) * p.maxRadius, 0, Math.PI * 2); ctx.fill();
+            }
+            ctx.restore();
+            return true;
+        });
+
+        // RENDERIZAÇÃO DO GHOST FLUTUANTE DO DRAG & DROP
+        if (dragTracker.isDragging && dragTracker.currentX > 0) {
+            ctx.save();
+            // Raio de posicionamento da tropa/feitiço
+            ctx.fillStyle = this.validateDeploymentZone(dragTracker.currentX, dragTracker.currentY, dragTracker.card.type, 'player') 
+                ? "rgba(16, 185, 129, 0.25)" 
+                : "rgba(239, 68, 68, 0.3)";
+            ctx.beginPath();
+            ctx.arc(dragTracker.currentX, dragTracker.currentY, dragTracker.card.type === 'hechizo' ? dragTracker.card.radius : 20, 0, Math.PI*2);
+            ctx.fill();
+
+            // Ícone Flutuante acompanhando o mouse/dedo
+            ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
+            ctx.font = "24px Arial"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+            ctx.fillText(getCardIcon(dragTracker.card.id), dragTracker.currentX, dragTracker.currentY);
+            ctx.restore();
+        }
+    },
+
+    endMatchByScore() {
+        this.endMatch('draw');
+    },
+
+    endMatch(winner) {
+        this.gameOver = true;
+        alert(winner === 'player' ? "VITÓRIA!" : winner === 'enemy' ? "DERROTA..." : "EMPATE!");
+        document.getElementById("game-screen").classList.add("hidden");
+        document.getElementById("deck-menu").classList.remove("hidden");
+        initDeckBuilder();
+    }
+};
