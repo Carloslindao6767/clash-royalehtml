@@ -1,229 +1,347 @@
-* { 
-    box-sizing: border-box; 
-    margin: 0; 
-    padding: 0; 
+:root {
+    --bg-dark: #111622;
+    --card-bg: #1e2640;
+    --accent-blue: #1d4ed8;
+    --accent-red: #b91c1c;
+    --elixir-color: #c026d3;
+    --text-light: #f3f4f6;
+    --gold: #d97706;
 }
 
-body { 
-    font-family: sans-serif; 
-    background: #222; 
-    color: #fff; 
-    display: flex; 
-    flex-direction: column; 
-    align-items: center; 
-    justify-content: center; 
-    height: 100vh; 
-    overflow: hidden; 
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    user-select: none;
+    -webkit-user-select: none;
+    font-family: 'Arial Black', Impact, sans-serif;
 }
 
-/* Arena de Jogo */
-#arena { 
-    width: 420px; 
-    height: 520px; 
-    background: #4a8505; 
-    border: 4px solid #333; 
-    position: relative; 
-    overflow: hidden; 
-    border-radius: 8px; 
+body {
+    background-color: var(--bg-dark);
+    color: var(--text-light);
+    overflow: hidden;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
-.linha-divisoria { 
-    position: absolute; 
-    top: 50%; 
-    left: 0; 
-    width: 100%; 
-    height: 2px; 
-    background: white; 
-    opacity: 0.5; 
+.screen {
+    width: 100%;
+    height: 100%;
+    max-width: 480px;
+    background-color: #151f32;
+    display: flex;
+    flex-direction: column;
+    position: relative;
 }
 
-/* Torres Defensivas */
-.torre { 
-    position: absolute; 
-    width: 44px; 
-    height: 44px; 
-    border-radius: 6px; 
-    display: flex; 
-    align-items: center; 
-    justify-content: center; 
-    font-size: 11px; 
-    font-weight: bold; 
-    color: white; 
-    box-shadow: 0 4px 6px rgba(0,0,0,0.3); 
+.hidden {
+    display: none !important;
 }
 
-.torre.aliada { 
-    background: #2980b9; 
-    border: 2px solid #3498db; 
+/* Menu Header */
+.menu-header {
+    padding: 15px;
+    text-align: center;
+    background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+    border-bottom: 3px solid #334155;
 }
 
-.torre.inimiga { 
-    background: #c0392b; 
-    border: 2px solid #e74c3c; 
+.menu-header h1 {
+    font-size: 1.8rem;
+    color: #f59e0b;
+    text-shadow: 2px 2px #000;
+    letter-spacing: 1px;
 }
 
-/* Tropas em Geral */
-.tropa { 
-    position: absolute; 
-    width: 22px; 
-    height: 22px; 
-    border-radius: 50%; 
-    display: flex; 
-    align-items: center; 
-    justify-content: center; 
-    font-size: 9px; 
-    font-weight: bold; 
-    color: white; 
-    transform: translate(-50%, -50%); 
-    transition: all 0.1s linear; 
-    box-shadow: 0 2px 4px rgba(0,0,0,0.4); 
+.menu-header p {
+    font-size: 0.75rem;
+    color: #94a3b8;
+    margin-top: 4px;
 }
 
-.tropa.aliada { 
-    background: #3498db; 
-    border: 1px solid #fff; 
+/* Construtor de Deck */
+.deck-status {
+    background-color: #0f172a;
+    padding: 12px;
+    border-bottom: 3px solid #334155;
 }
 
-.tropa.inimiga { 
-    background: #e74c3c; 
-    border: 1px solid #fff; 
+#deck-slots-container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+    margin-bottom: 10px;
 }
 
-/* Modificadores de Atributos das Tropas */
-.tropa.voadora { 
-    border-radius: 30% !important; 
-    border: 2px solid #f1c40f !important; 
+.deck-slot {
+    height: 75px;
+    background-color: #1e293b;
+    border: 2px dashed #475569;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.tropa.estrutura { 
-    border-radius: 0% !important; 
-    width: 32px; 
-    height: 32px; 
-    border: 2px solid #9b59b6 !important; 
+/* Painel de Controles */
+.controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
 }
 
-.tropa.tanque { 
-    width: 32px; 
-    height: 32px; 
-    font-size: 12px; 
-    font-weight: bold; 
+.difficulty-select {
+    display: flex;
+    flex-direction: column;
+    font-size: 0.75rem;
+    color: #cbd5e1;
 }
 
-/* Efeitos de Combate e Projéteis */
-.projetil { 
-    position: absolute; 
-    width: 6px; 
-    height: 6px; 
-    background: #f1c40f; 
-    border-radius: 50%; 
-    transform: translate(-50%, -50%); 
-    transition: all 0.05s linear; 
+.difficulty-select select {
+    background-color: #334155;
+    color: white;
+    border: 1px solid #475569;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-weight: bold;
+    outline: none;
+    margin-top: 2px;
 }
 
-.efeito-feitico { 
-    position: absolute; 
-    border-radius: 50%; 
-    transform: translate(-50%, -50%); 
-    opacity: 0.5; 
-    pointer-events: none; 
-    animation: fecharFeitico 0.5s ease-out forwards; 
+#start-battle-btn {
+    flex-grow: 1;
+    background: linear-gradient(180deg, #10b981 0%, #047857 100%);
+    color: white;
+    border: 2px solid #065f46;
+    padding: 10px;
+    border-radius: 6px;
+    font-size: 1.1rem;
+    text-shadow: 1px 1px #000;
+    cursor: pointer;
 }
 
-@keyframes fecharFeitico {
-    0% { width: 0px; height: 0px; opacity: 0.8; }
-    100% { width: 130px; height: 130px; opacity: 0; }
+#start-battle-btn:disabled {
+    background: #475569;
+    border-color: #334155;
+    color: #94a3b8;
+    cursor: not-allowed;
+    text-shadow: none;
 }
 
-/* Painel de Controle Inferior (UI) */
-#ui { 
-    width: 420px; 
-    margin-top: 10px; 
-    display: flex; 
-    flex-direction: column; 
-    gap: 8px; 
+/* Lista de Coleção de Cartas */
+.pool-section {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 12px;
 }
 
-#barra-elixir-container { 
-    width: 100%; 
-    height: 18px; 
-    background: #444; 
-    border-radius: 9px; 
-    overflow: hidden; 
-    border: 2px solid #555; 
+.pool-section h2 {
+    font-size: 1rem;
+    margin-bottom: 8px;
+    color: #f8fafc;
+    border-left: 4px solid #f59e0b;
+    padding-left: 6px;
 }
 
-#barra-elixir { 
-    width: 30%; 
-    height: 100%; 
-    background: #9b59b6; 
-    transition: width 0.1s linear; 
+.cards-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
 }
 
-#status { 
-    display: flex; 
-    justify-content: space-between; 
-    font-weight: bold; 
-    font-size: 14px; 
+/* Modelo das Cartas */
+.card-item {
+    background-color: var(--card-bg);
+    border: 2px solid #3b4260;
+    border-radius: 6px;
+    padding: 6px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
 }
 
-/* Deck de Cartas Deslizável */
-#carrossel-deck { 
-    width: 100%; 
-    overflow-x: auto; 
-    padding-bottom: 5px; 
+.card-item.campeon {
+    border-color: #f59e0b;
+    background: linear-gradient(135deg, #1e2640 0%, #451a03 100%);
 }
 
-#deck { 
-    display: flex; 
-    gap: 8px; 
-    width: max-content; 
+.card-item.selected-in-deck {
+    border-color: #10b981;
+    box-shadow: 0 0 10px #10b981;
+    opacity: 0.5;
 }
 
-.carta { 
-    width: 85px; 
-    height: 100px; 
-    background: #34495e; 
-    border: 2px solid #7f8c8d; 
-    border-radius: 6px; 
-    display: flex; 
-    flex-direction: column; 
-    align-items: center; 
-    justify-content: space-between; 
-    padding: 5px; 
-    cursor: pointer; 
-    user-select: none; 
-    flex-shrink: 0; 
+.card-elixir {
+    position: absolute;
+    top: -4px;
+    left: -4px;
+    background-color: var(--elixir-color);
+    color: white;
+    font-size: 0.7rem;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid white;
+    font-weight: bold;
 }
 
-.carta:hover { 
-    border-color: #f1c40f; 
-    background: #2c3e50; 
+.card-name {
+    font-size: 0.65rem;
+    text-align: center;
+    margin-top: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
 }
 
-.carta .custo { 
-    background: #9b59b6; 
-    border-radius: 50%; 
-    width: 20px; 
-    height: 20px; 
-    display: flex; 
-    align-items: center; 
-    justify-content: center; 
-    font-size: 11px; 
-    font-weight: bold; 
-    align-self: flex-start; 
+.card-type {
+    font-size: 0.5rem;
+    color: #9ca3af;
+    text-transform: uppercase;
 }
 
-.carta .nome { 
-    font-size: 9px; 
-    text-align: center; 
-    font-weight: bold; 
-    min-height: 24px; 
-    display: flex; 
-    align-items: center; 
+/* Interface da Tela de Arena (Game) */
+#ui-top {
+    position: absolute;
+    top: 10px;
+    left: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    pointer-events: none;
+    z-index: 10;
 }
 
-.carta .tipo { 
-    font-size: 8px; 
-    color: #bdc3c7; 
-    font-style: italic; 
+#timer-display {
+    background-color: rgba(0, 0, 0, 0.65);
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 1rem;
+    border: 1px solid #475569;
+}
+
+#match-status-text {
+    font-size: 1.3rem;
+    color: #f59e0b;
+    text-shadow: 2px 2px #000;
+    margin-top: 5px;
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out;
+}
+
+#canvas-container {
+    flex-grow: 1;
+    width: 100%;
+    background-color: #386b42;
+}
+
+#battle-canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+/* Painel de Invocação Inferior */
+#ui-bottom {
+    background-color: #0f172a;
+    padding: 10px;
+    border-top: 3px solid #334155;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+#elixir-section {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+#elixir-counter {
+    background-color: var(--elixir-color);
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    border: 2px solid white;
+}
+
+.elixir-bar-container {
+    flex-grow: 1;
+    height: 14px;
+    background-color: #1e293b;
+    border-radius: 7px;
+    overflow: hidden;
+    border: 1px solid #475569;
+}
+
+#elixir-bar-fill {
+    height: 100%;
+    width: 50%;
+    background: linear-gradient(90deg, #a21caf 0%, #e879f9 100%);
+    transition: width 0.1s linear;
+}
+
+#hand-section {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+#next-card-preview {
+    width: 60px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#next-card-preview .label {
+    font-size: 0.45rem;
+    color: #94a3b8;
+    margin-bottom: 2px;
+}
+
+#next-card-slot {
+    width: 50px;
+    height: 65px;
+    background-color: #1e293b;
+    border-radius: 4px;
+    border: 1px solid #334155;
+}
+
+#player-hand {
+    flex-grow: 1;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+}
+
+.hand-slot {
+    height: 80px;
+    background-color: #1e293b;
+    border-radius: 6px;
+    border: 2px solid transparent;
+    cursor: pointer;
+}
+
+.hand-slot.selected {
+    border-color: #f59e0b;
+    transform: translateY(-4px);
+    box-shadow: 0 4px 10px rgba(245, 158, 11, 0.4);
 }
