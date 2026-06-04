@@ -1,11 +1,11 @@
 :root {
-    --bg-dark: #111622;
-    --card-bg: #1e2640;
-    --accent-blue: #1d4ed8;
-    --accent-red: #b91c1c;
-    --elixir-color: #c026d3;
-    --text-light: #f3f4f6;
-    --gold: #d97706;
+    --bg-dark: #090d16;
+    --card-bg: #151c33;
+    --accent-blue: #2563eb;
+    --accent-red: #dc2626;
+    --elixir-color: #d946ef;
+    --text-light: #f8fafc;
+    --gold: #f59e0b;
 }
 
 * {
@@ -28,57 +28,68 @@ body {
     align-items: center;
 }
 
-.screen {
+.app-container {
+    display: flex;
     width: 100%;
     height: 100%;
-    max-width: 480px;
-    background-color: #151f32;
+    max-width: 450px;
+    background-color: #0f172a;
+    position: relative;
+    box-shadow: 0 0 30px rgba(0,0,0,0.75);
+}
+
+.menu-section, .game-section {
+    width: 100%;
+    height: 100%;
     display: flex;
     flex-direction: column;
-    position: relative;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-color: #0f172a;
+    transition: opacity 0.3s ease;
 }
 
 .hidden {
     display: none !important;
+    opacity: 0;
+    pointer-events: none;
 }
 
-/* Menu Header */
+/* Menu e Construtor de Decks */
 .menu-header {
-    padding: 15px;
+    padding: 12px;
     text-align: center;
     background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
-    border-bottom: 3px solid #334155;
+    border-bottom: 2px solid #334155;
 }
 
 .menu-header h1 {
-    font-size: 1.8rem;
-    color: #f59e0b;
+    font-size: 1.5rem;
+    color: var(--gold);
     text-shadow: 2px 2px #000;
-    letter-spacing: 1px;
 }
 
 .menu-header p {
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     color: #94a3b8;
-    margin-top: 4px;
 }
 
-/* Construtor de Deck */
 .deck-status {
-    background-color: #0f172a;
-    padding: 12px;
-    border-bottom: 3px solid #334155;
+    background-color: #0b0f19;
+    padding: 10px;
+    border-bottom: 2px solid #334155;
 }
 
 #deck-slots-container {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 6px;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
 }
 
 .deck-slot {
-    height: 75px;
+    height: 65px;
     background-color: #1e293b;
     border: 2px dashed #475569;
     border-radius: 6px;
@@ -87,7 +98,6 @@ body {
     justify-content: center;
 }
 
-/* Painel de Controles */
 .controls {
     display: flex;
     justify-content: space-between;
@@ -98,85 +108,82 @@ body {
 .difficulty-select {
     display: flex;
     flex-direction: column;
-    font-size: 0.75rem;
-    color: #cbd5e1;
+    font-size: 0.7rem;
 }
 
 .difficulty-select select {
     background-color: #334155;
     color: white;
     border: 1px solid #475569;
-    padding: 4px 8px;
+    padding: 4px;
     border-radius: 4px;
-    font-weight: bold;
     outline: none;
-    margin-top: 2px;
 }
 
 #start-battle-btn {
     flex-grow: 1;
     background: linear-gradient(180deg, #10b981 0%, #047857 100%);
     color: white;
-    border: 2px solid #065f46;
+    border: none;
     padding: 10px;
     border-radius: 6px;
-    font-size: 1.1rem;
-    text-shadow: 1px 1px #000;
+    font-size: 1rem;
     cursor: pointer;
+    box-shadow: 0 3px 0 #047857;
 }
 
 #start-battle-btn:disabled {
     background: #475569;
-    border-color: #334155;
+    box-shadow: none;
     color: #94a3b8;
     cursor: not-allowed;
-    text-shadow: none;
 }
 
-/* Lista de Coleção de Cartas */
 .pool-section {
     flex-grow: 1;
     overflow-y: auto;
-    padding: 12px;
+    padding: 10px;
 }
 
 .pool-section h2 {
-    font-size: 1rem;
-    margin-bottom: 8px;
-    color: #f8fafc;
-    border-left: 4px solid #f59e0b;
+    font-size: 0.9rem;
+    margin-bottom: 6px;
+    border-left: 4px solid var(--gold);
     padding-left: 6px;
 }
 
 .cards-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
+    gap: 6px;
 }
 
-/* Modelo das Cartas */
+/* Cartas */
 .card-item {
     background-color: var(--card-bg);
-    border: 2px solid #3b4260;
+    border: 2px solid #334155;
     border-radius: 6px;
     padding: 6px;
     display: flex;
     flex-direction: column;
     align-items: center;
     position: relative;
-    cursor: pointer;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    cursor: grab;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.4);
+}
+
+.card-item:active {
+    cursor: grabbing;
 }
 
 .card-item.campeon {
-    border-color: #f59e0b;
+    border-color: var(--gold);
     background: linear-gradient(135deg, #1e2640 0%, #451a03 100%);
 }
 
 .card-item.selected-in-deck {
     border-color: #10b981;
-    box-shadow: 0 0 10px #10b981;
-    opacity: 0.5;
+    opacity: 0.4;
 }
 
 .card-elixir {
@@ -185,7 +192,7 @@ body {
     left: -4px;
     background-color: var(--elixir-color);
     color: white;
-    font-size: 0.7rem;
+    font-size: 0.65rem;
     width: 18px;
     height: 18px;
     border-radius: 50%;
@@ -193,29 +200,18 @@ body {
     align-items: center;
     justify-content: center;
     border: 1px solid white;
-    font-weight: bold;
 }
 
 .card-name {
     font-size: 0.65rem;
-    text-align: center;
     margin-top: 4px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    width: 100%;
+    text-align: center;
 }
 
-.card-type {
-    font-size: 0.5rem;
-    color: #9ca3af;
-    text-transform: uppercase;
-}
-
-/* Interface da Tela de Arena (Game) */
+/* Arena Visuals */
 #ui-top {
     position: absolute;
-    top: 10px;
+    top: 8px;
     left: 0;
     width: 100%;
     display: flex;
@@ -226,26 +222,27 @@ body {
 }
 
 #timer-display {
-    background-color: rgba(0, 0, 0, 0.65);
-    padding: 4px 12px;
-    border-radius: 12px;
-    font-size: 1rem;
-    border: 1px solid #475569;
+    background-color: rgba(15, 23, 42, 0.85);
+    padding: 4px 14px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    border: 2px solid #334155;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
 }
 
 #match-status-text {
-    font-size: 1.3rem;
-    color: #f59e0b;
+    font-size: 1.2rem;
+    color: var(--gold);
     text-shadow: 2px 2px #000;
-    margin-top: 5px;
+    margin-top: 4px;
     opacity: 0;
-    transition: opacity 0.2s ease-in-out;
 }
 
 #canvas-container {
     flex-grow: 1;
     width: 100%;
-    background-color: #386b42;
+    background-color: #1e3a1f;
+    position: relative;
 }
 
 #battle-canvas {
@@ -254,11 +251,11 @@ body {
     height: 100%;
 }
 
-/* Painel de Invocação Inferior */
+/* Painel de Controle Inferior (Mão do Deck) */
 #ui-bottom {
-    background-color: #0f172a;
+    background-color: #0b0f19;
     padding: 10px;
-    border-top: 3px solid #334155;
+    border-top: 3px solid #1e293b;
     display: flex;
     flex-direction: column;
     gap: 8px;
@@ -272,40 +269,38 @@ body {
 
 #elixir-counter {
     background-color: var(--elixir-color);
-    width: 26px;
-    height: 26px;
+    width: 24px;
+    height: 24px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1rem;
-    border: 2px solid white;
+    font-size: 0.9rem;
+    border: 1px solid white;
 }
 
 .elixir-bar-container {
     flex-grow: 1;
-    height: 14px;
+    height: 12px;
     background-color: #1e293b;
-    border-radius: 7px;
+    border-radius: 6px;
     overflow: hidden;
-    border: 1px solid #475569;
 }
 
 #elixir-bar-fill {
     height: 100%;
-    width: 50%;
-    background: linear-gradient(90deg, #a21caf 0%, #e879f9 100%);
-    transition: width 0.1s linear;
+    width: 0%;
+    background: linear-gradient(90deg, #c026d3 0%, #f472b6 100%);
 }
 
 #hand-section {
     display: flex;
-    gap: 10px;
+    gap: 8px;
     align-items: center;
 }
 
 #next-card-preview {
-    width: 60px;
+    width: 55px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -313,16 +308,16 @@ body {
 
 #next-card-preview .label {
     font-size: 0.45rem;
-    color: #94a3b8;
+    color: #64748b;
     margin-bottom: 2px;
 }
 
 #next-card-slot {
-    width: 50px;
-    height: 65px;
+    width: 45px;
+    height: 60px;
     background-color: #1e293b;
     border-radius: 4px;
-    border: 1px solid #334155;
+    opacity: 0.7;
 }
 
 #player-hand {
@@ -333,15 +328,21 @@ body {
 }
 
 .hand-slot {
-    height: 80px;
-    background-color: #1e293b;
+    height: 75px;
+    background-color: #141b2d;
     border-radius: 6px;
-    border: 2px solid transparent;
-    cursor: pointer;
+    border: 2px dashed #334155;
+    position: relative;
+    transition: transform 0.1s ease;
 }
 
-.hand-slot.selected {
-    border-color: #f59e0b;
-    transform: translateY(-4px);
-    box-shadow: 0 4px 10px rgba(245, 158, 11, 0.4);
+/* Ghost visual temporário para o Dragging */
+.hand-slot .card-item {
+    width: 100%;
+    height: 100%;
+}
+
+.dragging-active {
+    opacity: 0.5;
+    transform: scale(0.95);
 }
